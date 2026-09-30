@@ -16,7 +16,8 @@
 <style>
 /* Layout: one-screen tabletop. Board centred on green-blue felt, player seats above and below like chairs at a table. Single deliberate look. */
 :root{
-  --felt:#15313d; --felt-2:#1f4a5c; --ivory:#fbf5e6; --ink:#1b2a33; --muted:#9dbac6; --gold:#f2b01e; --gold-dark:#b77f06;
+  --felt:#1c3b46; --felt-2:#2f5d69; --ivory:#f8f2e4; --ink:#243640; --muted:#a9c3cc; --gold:#f3c14e; --gold-dark:#c08c1c;
+  --deep:#2b505c; --sand:#eee6d3; --sand-2:#e6dcc5; --sand-edge:#cbbd9e;
   --display:"Baloo 2","Arial Rounded MT Bold",system-ui,sans-serif;
   --body:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --bs:320px;
@@ -47,7 +48,7 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
 .seat .sub{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.3px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .seat .rank{color:var(--gold)}
 
-.die{--dbg:var(--ivory);--pip:var(--ink);--dedge:#cdbf9c;flex:none;width:50px;height:50px;border-radius:12px;border:0;padding:8px;background:var(--dbg);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);box-shadow:0 3px 0 var(--dedge),0 6px 12px rgba(0,0,0,.35);opacity:.45;transition:opacity .2s,transform .15s}
+.die{--dbg:var(--ivory);--pip:var(--ink);--dedge:#d3c6a6;flex:none;width:50px;height:50px;border-radius:12px;border:0;padding:8px;background:var(--dbg);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);box-shadow:0 3px 0 var(--dedge),0 6px 12px rgba(0,0,0,.35);opacity:.45;transition:opacity .2s,transform .15s}
 .die i{width:9px;height:9px;border-radius:50%;background:var(--pip);box-shadow:inset 0 -1px 0 rgba(0,0,0,.25);place-self:center;opacity:0}
 .die i.on{opacity:1}
 .seat.active .die{opacity:1}
@@ -59,7 +60,7 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
 
 #boardWrap{flex:none;padding:6px;display:flex;align-items:center;justify-content:center}
 #table{flex:1;min-height:0;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
-#board{display:block;border-radius:14px;box-shadow:0 0 0 6px rgba(0,0,0,.3),0 18px 40px rgba(0,0,0,.45);touch-action:none}
+#board{display:block;border-radius:14px;box-shadow:0 0 0 6px rgba(0,0,0,.22),0 16px 36px rgba(0,0,0,.32);touch-action:none}
 
 #status{margin:0;min-height:22px;font-weight:800;font-size:15px;text-align:center;color:var(--ivory);max-width:var(--bs)}
 
@@ -70,11 +71,11 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
 .card p{margin:0;line-height:1.45;font-weight:600;color:#46545c}
 .field{display:flex;flex-direction:column;gap:6px}
 .field>span{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:#6b777d}
-.seg{display:flex;gap:4px;padding:4px;border-radius:14px;background:#ece2c8}
+.seg{display:flex;gap:4px;padding:4px;border-radius:14px;background:var(--sand)}
 .seg label{flex:1;position:relative}
 .seg input{position:absolute;opacity:0;inset:0;margin:0}
 .seg label span{display:block;text-align:center;padding:9px 6px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer}
-.seg input:checked+span{background:var(--ink);color:var(--ivory)}
+.seg input:checked+span{background:var(--deep);color:var(--ivory)}
 .swatches{display:flex;gap:12px}
 .swatches label{position:relative}
 .swatches input{position:absolute;opacity:0;inset:0;margin:0}
@@ -83,10 +84,10 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
 .actions{display:flex;flex-direction:column;gap:8px}
 .btn{border:0;border-radius:14px;padding:14px;font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:.5px;background:var(--gold);color:var(--ink);box-shadow:0 4px 0 var(--gold-dark)}
 .btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--gold-dark)}
-.btn.alt{background:#e3d8bb;box-shadow:0 4px 0 #bfb190}
+.btn.alt{background:var(--sand-2);box-shadow:0 4px 0 var(--sand-edge)}
 .rules{font-size:13px}
 .ranks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
-.ranks li{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:#efe6cf;font-weight:800}
+.ranks li{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:var(--sand);font-weight:800}
 .ranks li b{font-family:var(--display);font-weight:800;font-size:18px;width:36px;font-variant-numeric:tabular-nums}
 .ranks li i{width:14px;height:14px;border-radius:50%;background:var(--c)}
 
@@ -125,7 +126,7 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
 .coin{display:inline-block;width:1em;height:1em;flex:none;border-radius:50%;vertical-align:-.15em;background:radial-gradient(circle at 35% 30%,#fff3b0,#f2b01e 52%,#b77f06);box-shadow:inset 0 0 0 .12em rgba(255,255,255,.3),0 .08em 0 #7a5404}
 .coin.big{font-size:70px}
 .coins{display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 5px;border-radius:999px;background:rgba(242,176,30,.16);color:var(--gold);font-weight:800;font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
-.coins.dark{background:var(--ink);font-size:17px;padding:5px 14px 5px 7px}
+.coins.dark{background:var(--deep);font-size:17px;padding:5px 14px 5px 7px}
 .xp-pop.coin-pop{left:62%;display:flex;align-items:center;gap:4px;color:#ffe08a}
 .ptop{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .reward-coins{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:16px;color:var(--gold-dark)}
@@ -139,7 +140,7 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
 .item.confirm small{color:var(--gold-dark);font-weight:800}
 
 /* Profile card in the menu */
-.profile{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:var(--ink);color:var(--ivory)}
+.profile{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:var(--deep);color:var(--ivory)}
 .lvbadge{flex:none;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#ffe08a,var(--gold) 55%,var(--gold-dark));color:var(--ink);font-family:var(--display);font-weight:800;font-size:24px;box-shadow:0 3px 0 #7a5404,inset 0 -3px 0 rgba(0,0,0,.15);font-variant-numeric:tabular-nums}
 .pinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
 .pinfo b{font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:.3px}
@@ -150,7 +151,7 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
 .next em{font-style:normal;color:var(--gold)}
 
 /* XP summary on the end screen */
-.xpsum{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:16px;background:var(--ink);color:var(--ivory)}
+.xpsum{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:16px;background:var(--deep);color:var(--ivory)}
 .xprow{display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
 .xprow span:last-child{color:var(--gold)}
 .xprow.total{font-family:var(--display);font-weight:800;font-size:19px;border-top:1px solid rgba(255,255,255,.14);padding-top:8px}
@@ -161,7 +162,7 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
 #reward .card{align-items:center;text-align:center;isolation:isolate;gap:10px}
 .kicker{font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#6b777d}
 .reward-lv{font-family:var(--display);font-weight:800;font-size:52px;line-height:1;color:var(--gold-dark)}
-.reward-show{position:relative;width:128px;height:128px;margin:14px 0;border-radius:28px;display:grid;place-items:center;background:var(--ink)}
+.reward-show{position:relative;width:128px;height:128px;margin:14px 0;border-radius:28px;display:grid;place-items:center;background:var(--deep)}
 .reward-show::before{content:"";position:absolute;inset:-34px;z-index:-1;border-radius:50%;background:repeating-conic-gradient(rgba(242,176,30,.3) 0 9deg,transparent 9deg 18deg);animation:spin 9s linear infinite}
 .reward-show .pv{width:96px;height:96px}
 .reward-show .die.mini{width:74px;height:74px;padding:12px}
@@ -175,18 +176,18 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
 .confetti i{position:absolute;top:-14px;width:8px;height:12px;border-radius:2px}
 
 /* Collection */
-.tabs{display:flex;gap:4px;padding:4px;border-radius:14px;background:#ece2c8}
+.tabs{display:flex;gap:4px;padding:4px;border-radius:14px;background:var(--sand)}
 .tabs button{flex:1;border:0;background:none;padding:9px 6px;border-radius:10px;font-weight:800;font-size:14px;color:var(--ink)}
-.tabs button[aria-selected="true"]{background:var(--ink);color:var(--ivory)}
+.tabs button[aria-selected="true"]{background:var(--deep);color:var(--ivory)}
 .items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.item{border:2px solid transparent;background:#efe6cf;border-radius:14px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;font-weight:800;font-size:12.5px;line-height:1.15;text-align:center;color:var(--ink);min-width:0}
+.item{border:2px solid transparent;background:var(--sand);border-radius:14px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;font-weight:800;font-size:12.5px;line-height:1.15;text-align:center;color:var(--ink);min-width:0}
 .item.on{border-color:var(--ink);background:#fffaf0}
 .item:disabled{cursor:default}
 .item.locked .pv{filter:grayscale(1);opacity:.45}
 .item small{font-size:11px;font-weight:700;color:#6b777d}
 .item.on small{color:var(--gold-dark)}
 .pv{width:56px;height:56px;display:grid;place-items:center;border-radius:12px}
-.mini-board{width:46%;height:46%;border-radius:4px;background:conic-gradient(#27a35a 0 25%,#f2b01e 0 50%,#2e7bd6 0 75%,#e0474c 0);box-shadow:0 0 0 3px #fbf5e6,0 4px 8px rgba(0,0,0,.4)}
+.mini-board{width:46%;height:46%;border-radius:4px;background:conic-gradient(#4dab82 0 25%,#efb748 0 50%,#5b8ed6 0 75%,#e5695d 0);box-shadow:0 0 0 3px #f8f2e4,0 4px 8px rgba(0,0,0,.4)}
 @media (prefers-reduced-motion:reduce){.die.ready,.die.rolling,.reward-show::before{animation:none}}
 </style>
 
@@ -231,10 +232,10 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
     </div>
     <div class="field"><span>A színed</span>
       <div class="swatches">
-        <label><input type="radio" name="color" id="cRed" value="red" checked aria-label="Piros"><span style="--c:#e0474c"></span></label>
-        <label><input type="radio" name="color" id="cGreen" value="green" aria-label="Zöld"><span style="--c:#27a35a"></span></label>
-        <label><input type="radio" name="color" id="cYellow" value="yellow" aria-label="Sárga"><span style="--c:#f2b01e"></span></label>
-        <label><input type="radio" name="color" id="cBlue" value="blue" aria-label="Kék"><span style="--c:#2e7bd6"></span></label>
+        <label><input type="radio" name="color" id="cRed" value="red" checked aria-label="Piros"><span style="--c:#e5695d"></span></label>
+        <label><input type="radio" name="color" id="cGreen" value="green" aria-label="Zöld"><span style="--c:#4dab82"></span></label>
+        <label><input type="radio" name="color" id="cYellow" value="yellow" aria-label="Sárga"><span style="--c:#efb748"></span></label>
+        <label><input type="radio" name="color" id="cBlue" value="blue" aria-label="Kék"><span style="--c:#5b8ed6"></span></label>
       </div>
     </div>
     <div class="actions">
@@ -306,10 +307,10 @@ const SEATS=[
 const SAFE=new Set([0,8,13,21,26,34,39,47]);
 const BASE_SPOTS=[[1.9,1.9],[4.1,1.9],[1.9,4.1],[4.1,4.1]];
 const PALETTE={
-  red:   {fill:'#e0474c',dark:'#9e2328',light:'#f8cfd0',name:'Piros',acc:'a Pirosat'},
-  green: {fill:'#27a35a',dark:'#146236',light:'#c7ecd4',name:'Zöld',acc:'a Zöldet'},
-  yellow:{fill:'#f2b01e',dark:'#a26b04',light:'#fce6ab',name:'Sárga',acc:'a Sárgát'},
-  blue:  {fill:'#2e7bd6',dark:'#16478a',light:'#c9ddf6',name:'Kék',acc:'a Kéket'},
+  red:   {fill:'#e5695d',dark:'#a8453b',light:'#fbe0db',soft:'#ec8e84',name:'Piros',acc:'a Pirosat'},
+  green: {fill:'#4dab82',dark:'#2d7556',light:'#dcefe5',soft:'#7cc3a3',name:'Zöld',acc:'a Zöldet'},
+  yellow:{fill:'#efb748',dark:'#b0801c',light:'#fcefcf',soft:'#f4cb75',name:'Sárga',acc:'a Sárgát'},
+  blue:  {fill:'#5b8ed6',dark:'#365f9c',light:'#dde7f7',soft:'#86ace2',name:'Kék',acc:'a Kéket'},
 };
 const ORDER=['red','green','yellow','blue'];
 const HOME=56, LAST_MAIN=50;
@@ -355,7 +356,7 @@ const COSMETICS={
     {id:'rose',name:'Rózsa',price:400},{id:'slate',name:'Pala',price:500},{id:'olive',name:'Olíva',price:650},{id:'midnight',name:'Éjfél',price:900},{id:'jade',name:'Jáde',price:1200},{id:'cotton',name:'Vattacukor',price:1500},
   ],
 };
-const TABLES={teal:['#15313d','#1f4a5c'],wine:['#2e0f18','#6b2238'],forest:['#0f2a18','#1f5a33'],night:['#12102b','#2f2a66'],sunset:['#2d1424','#8c3d3a'],royal:['#1f0c30','#5a2a78'],ocean:['#07233b','#12608f'],
+const TABLES={teal:['#1c3b46','#2f5d69'],wine:['#2e0f18','#6b2238'],forest:['#0f2a18','#1f5a33'],night:['#12102b','#2f2a66'],sunset:['#2d1424','#8c3d3a'],royal:['#1f0c30','#5a2a78'],ocean:['#07233b','#12608f'],
   lavender:['#221a33','#5a4a86'],cherry:['#2a0a14','#8e1f3f'],aurora:['#061d26','#1c7a6a'],goldhall:['#2a1d05','#7a5a14'],
   rose:['#2e1520','#9a4f6c'],slate:['#1b1f24','#46505c'],olive:['#1f220f','#5c6424'],midnight:['#05070f','#1a2140'],jade:['#062620','#16755e'],cotton:['#2c1a33','#b5669a']};
 // Token designs: e = emblem drawn in the middle, rim = metal ring, glow = neon halo
@@ -510,12 +511,12 @@ function buildBoard(){
   boardCache=document.createElement('canvas');boardCache.width=boardCache.height=S;
   const b=boardCache.getContext('2d'),c=S/15;
   b.save();rr(b,0,0,S,S,c*.6);b.clip();
-  b.fillStyle='#fbf5e6';b.fillRect(0,0,S,S);
+  b.fillStyle='#f7f0e1';b.fillRect(0,0,S,S);
   const inGame=s=>!G||G.seats.includes(s);
   // track cells
   for(let y=0;y<15;y++)for(let x=0;x<15;x++){
     const cross=(x>=6&&x<=8)||(y>=6&&y<=8),center=x>=6&&x<=8&&y>=6&&y<=8;
-    if(cross&&!center){b.fillStyle='#fffdf6';b.fillRect(x*c,y*c,c,c)}
+    if(cross&&!center){b.fillStyle='#fcf8ef';b.fillRect(x*c,y*c,c,c)}
   }
   for(let s=0;s<4;s++){
     const col=colOf(s);b.globalAlpha=inGame(s)?1:.3;
@@ -524,8 +525,9 @@ function buildBoard(){
     const[sx,sy]=TRACK[SEATS[s].start];b.fillRect(sx*c,sy*c,c,c);
     // base
     const[bx,by]=SEATS[s].base;
-    b.fillRect(bx*c,by*c,6*c,6*c);
-    b.fillStyle='#fbf5e6';rr(b,(bx+.7)*c,(by+.7)*c,4.6*c,4.6*c,c*.7);b.fill();
+    const bg=b.createLinearGradient(0,by*c,0,(by+6)*c);bg.addColorStop(0,col.soft);bg.addColorStop(1,col.fill);
+    b.fillStyle=bg;b.fillRect(bx*c,by*c,6*c,6*c);
+    b.fillStyle='#fcf8ef';rr(b,(bx+.7)*c,(by+.7)*c,4.6*c,4.6*c,c*.7);b.fill();
     BASE_SPOTS.forEach(([ox,oy])=>{b.beginPath();b.arc((bx+ox)*c,(by+oy)*c,c*.56,0,Math.PI*2);b.fillStyle=col.light;b.fill();b.lineWidth=c*.09;b.strokeStyle=col.fill;b.stroke()});
     // centre triangle
     const tri={'0,1':[[6,9],[9,9]],'-1,0':[[6,6],[6,9]],'0,-1':[[6,6],[9,6]],'1,0':[[9,6],[9,9]]}[SEATS[s].side.join()];
@@ -533,13 +535,13 @@ function buildBoard(){
     b.globalAlpha=1;
   }
   // grid lines
-  b.strokeStyle='#d6cbb0';b.lineWidth=Math.max(1,c*.045);
+  b.strokeStyle='#e3d8c1';b.lineWidth=Math.max(1,c*.045);
   for(let y=0;y<15;y++)for(let x=0;x<15;x++){
     const cross=(x>=6&&x<=8)||(y>=6&&y<=8),center=x>=6&&x<=8&&y>=6&&y<=8;
     if(cross&&!center)b.strokeRect(x*c,y*c,c,c);
   }
   // safe stars
-  SAFE.forEach(g=>{const[x,y]=TRACK[g];const isStart=SEATS.some(s=>s.start===g);star(b,(x+.5)*c,(y+.5)*c,c*.33);b.fillStyle=isStart?'rgba(255,255,255,.85)':'#cbbd97';b.fill()});
+  SAFE.forEach(g=>{const[x,y]=TRACK[g];const isStart=SEATS.some(s=>s.start===g);star(b,(x+.5)*c,(y+.5)*c,c*.33);b.fillStyle=isStart?'rgba(255,255,255,.85)':'#d9cba6';b.fill()});
   // centre outline
   b.strokeStyle='rgba(0,0,0,.12)';b.lineWidth=c*.05;b.strokeRect(6*c,6*c,3*c,3*c);
   b.restore();
@@ -919,7 +921,7 @@ function preview(kind,id,px){
 function confetti(){
   if(REDUCED)return;
   const box=document.createElement('div');box.className='confetti';document.body.appendChild(box);
-  const cols=['#e0474c','#27a35a','#f2b01e','#2e7bd6','#fbf5e6'];
+  const cols=['#e5695d','#4dab82','#efb748','#5b8ed6','#f8f2e4'];
   for(let i=0;i<70;i++){
     const p=document.createElement('i');p.style.left=Math.random()*100+'%';p.style.background=cols[i%5];box.appendChild(p);
     const dx=(Math.random()-.5)*180,rot=Math.random()*900-450;
