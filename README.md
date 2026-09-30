@@ -12,6 +12,12 @@ A Ludo board game for phones. You play against one or three computer opponents. 
 sh build.sh
 ```
 
+## Levels and rewards
+
+You earn XP for bringing tokens out (+3), capturing (+15 each), getting a token home (+20), and your final place (1st place is +120 against 3 opponents or +80 against 1). Against the "Ügyes" (sharp) computer, the place bonus is multiplied by 1.5.
+
+Every level from 2 to 20 unlocks a token design, dice skin or table colour. Levels 5, 10, 15 and 20 also give a new title. You can pick what to use in the menu under "Gyűjtemény". Progress is saved in the browser on your device.
+
 ## Rules
 
 - Roll a 6 to bring a token out of its base.

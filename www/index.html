@@ -12,12 +12,12 @@
 <title>Ki nevet a végén?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&family=Nunito:wght@600;700;800&display=swap">
 <style>
 /* Layout: one-screen tabletop. Board centred on green-blue felt, player seats above and below like chairs at a table. Single deliberate look. */
 :root{
   --felt:#15313d; --felt-2:#1f4a5c; --ivory:#fbf5e6; --ink:#1b2a33; --muted:#9dbac6; --gold:#f2b01e; --gold-dark:#b77f06;
-  --display:"Lilita One","Arial Rounded MT Bold",system-ui,sans-serif;
+  --display:"Baloo 2","Arial Rounded MT Bold",system-ui,sans-serif;
   --body:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --bs:320px;
   color-scheme:dark;
@@ -30,28 +30,28 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
 
 #app{height:100%;display:flex;flex-direction:column;align-items:center;gap:6px;padding-inline:16px;padding-block:8px 12px}
 .bar{width:100%;max-width:640px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.bar h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(17px,5vw,22px);white-space:nowrap;letter-spacing:.5px;color:var(--ivory)}
+.bar h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(17px,5vw,22px);white-space:nowrap;letter-spacing:.5px;color:var(--ivory)}
 .bar h1 span{color:var(--gold)}
 .ghost{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;color:var(--ivory)}
 .ghost:active{background:rgba(255,255,255,.16)}
 
 .seats{width:var(--bs);display:flex;justify-content:space-between;gap:10px}
-.seat{--pc:#888;flex:0 1 50%;min-width:0;display:flex;align-items:center;gap:10px;padding:7px 9px;border-radius:16px;background:rgba(255,255,255,.05);border:2px solid transparent;transition:border-color .2s,background .2s}
+.seat{--pc:#888;position:relative;flex:0 1 50%;min-width:0;display:flex;align-items:center;gap:10px;padding:7px 9px;border-radius:16px;background:rgba(255,255,255,.05);border:2px solid transparent;transition:border-color .2s,background .2s}
 .seat.right{flex-direction:row-reverse;text-align:right}
 .seat.empty{visibility:hidden}
 .seat.active{border-color:var(--pc);background:color-mix(in srgb,var(--pc) 22%,transparent)}
 .seat .who{min-width:0;display:flex;flex-direction:column;gap:1px}
-.seat .name{font-family:var(--display);font-size:17px;line-height:1.1;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.seat .name{font-family:var(--display);font-weight:800;font-size:17px;line-height:1.1;display:flex;align-items:center;gap:6px;white-space:nowrap}
 .seat.right .name{flex-direction:row-reverse}
 .seat .dot{width:12px;height:12px;border-radius:50%;background:var(--pc);box-shadow:0 0 0 2px rgba(255,255,255,.6);flex:none}
 .seat .sub{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.3px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .seat .rank{color:var(--gold)}
 
-.die{flex:none;width:50px;height:50px;border-radius:12px;border:0;padding:8px;background:var(--ivory);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);box-shadow:0 3px 0 #cdbf9c,0 6px 12px rgba(0,0,0,.35);opacity:.45;transition:opacity .2s,transform .15s}
-.die i{width:9px;height:9px;border-radius:50%;background:var(--ink);place-self:center;opacity:0}
+.die{--dbg:var(--ivory);--pip:var(--ink);--dedge:#cdbf9c;flex:none;width:50px;height:50px;border-radius:12px;border:0;padding:8px;background:var(--dbg);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);box-shadow:0 3px 0 var(--dedge),0 6px 12px rgba(0,0,0,.35);opacity:.45;transition:opacity .2s,transform .15s}
+.die i{width:9px;height:9px;border-radius:50%;background:var(--pip);box-shadow:inset 0 -1px 0 rgba(0,0,0,.25);place-self:center;opacity:0}
 .die i.on{opacity:1}
 .seat.active .die{opacity:1}
-.die.ready{animation:beckon 1.1s ease-in-out infinite;box-shadow:0 3px 0 #cdbf9c,0 0 0 4px var(--pc),0 8px 18px rgba(0,0,0,.4)}
+.die.ready{animation:beckon 1.1s ease-in-out infinite;box-shadow:0 3px 0 var(--dedge),0 0 0 4px var(--pc),0 8px 18px rgba(0,0,0,.4)}
 .die.rolling{animation:tumble .12s linear infinite}
 .die:disabled{cursor:default}
 @keyframes beckon{50%{transform:translateY(-4px) scale(1.06)}}
@@ -59,13 +59,13 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
 
 #boardWrap{flex:none;padding:6px;display:flex;align-items:center;justify-content:center}
 #table{flex:1;min-height:0;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
-#board{display:block;border-radius:14px;box-shadow:0 0 0 6px #0f2630,0 18px 40px rgba(0,0,0,.45);touch-action:none}
+#board{display:block;border-radius:14px;box-shadow:0 0 0 6px rgba(0,0,0,.3),0 18px 40px rgba(0,0,0,.45);touch-action:none}
 
 #status{margin:0;min-height:22px;font-weight:800;font-size:15px;text-align:center;color:var(--ivory);max-width:var(--bs)}
 
 .overlay{position:fixed;inset:0;z-index:5;display:grid;place-items:center;padding:16px;background:rgba(9,22,28,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
 .card{width:100%;max-width:380px;max-height:100%;overflow:auto;background:var(--ivory);color:var(--ink);border-radius:22px;padding:22px 20px;display:flex;flex-direction:column;gap:16px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.card h2{margin:0;font-family:var(--display);font-weight:400;font-size:34px;line-height:1;letter-spacing:.5px;text-wrap:balance}
+.card h2{margin:0;font-family:var(--display);font-weight:800;font-size:34px;line-height:1;letter-spacing:.5px;text-wrap:balance}
 .card h2 span{color:var(--gold-dark)}
 .card p{margin:0;line-height:1.45;font-weight:600;color:#46545c}
 .field{display:flex;flex-direction:column;gap:6px}
@@ -81,15 +81,83 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
 .swatches span{display:block;width:40px;height:40px;border-radius:50%;background:var(--c);box-shadow:inset 0 -4px 0 rgba(0,0,0,.2);cursor:pointer;border:3px solid transparent}
 .swatches input:checked+span{border-color:var(--ink);box-shadow:inset 0 -4px 0 rgba(0,0,0,.2),0 0 0 3px var(--ivory),0 0 0 5px var(--c)}
 .actions{display:flex;flex-direction:column;gap:8px}
-.btn{border:0;border-radius:14px;padding:14px;font-family:var(--display);font-size:20px;letter-spacing:.5px;background:var(--gold);color:var(--ink);box-shadow:0 4px 0 var(--gold-dark)}
+.btn{border:0;border-radius:14px;padding:14px;font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:.5px;background:var(--gold);color:var(--ink);box-shadow:0 4px 0 var(--gold-dark)}
 .btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--gold-dark)}
 .btn.alt{background:#e3d8bb;box-shadow:0 4px 0 #bfb190}
 .rules{font-size:13px}
 .ranks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .ranks li{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:#efe6cf;font-weight:800}
-.ranks li b{font-family:var(--display);font-weight:400;font-size:18px;width:36px;font-variant-numeric:tabular-nums}
+.ranks li b{font-family:var(--display);font-weight:800;font-size:18px;width:36px;font-variant-numeric:tabular-nums}
 .ranks li i{width:14px;height:14px;border-radius:50%;background:var(--c)}
-@media (prefers-reduced-motion:reduce){.die.ready,.die.rolling{animation:none}}
+
+/* Dice skins, unlocked by levelling up */
+.die.skin-wood{--dbg:linear-gradient(135deg,#c89060,#9a6436 55%,#b57a45);--pip:#3a2210;--dedge:#6e4524}
+.die.skin-midnight{--dbg:linear-gradient(145deg,#2c3a7a,#141c45);--pip:#e8ecff;--dedge:#0b1030}
+.die.skin-candy{--dbg:linear-gradient(145deg,#ffb3d3,#ff6fa8);--pip:#fff;--dedge:#c94a7f}
+.die.skin-marble{--dbg:linear-gradient(120deg,#f6f6f3 0%,#d9d9d4 28%,#f8f8f5 44%,#cbcbc5 68%,#f2f2ef);--pip:#2b2b2b;--dedge:#a8a8a2}
+.die.skin-gold{--dbg:linear-gradient(145deg,#ffe28a,#e0a91e 55%,#f7cc4a);--pip:#5a3b00;--dedge:#9b6b00}
+.die.skin-galaxy{--dbg:radial-gradient(circle at 30% 25%,#8a5fe0,#2a1760 55%,#0e0826);--pip:#ffe9a8;--dedge:#07041a}
+.die.skin-rainbow{--dbg:linear-gradient(135deg,#ff6b6b,#ffb86b,#ffe66b,#6bdc8e,#6bc5ff,#b06bff);--pip:#fff;--dedge:#7a4bb0}
+.die.mini{width:44px;height:44px;padding:7px;opacity:1}
+.die.mini i{width:7px;height:7px}
+
+/* Level badge and XP bar on your seat */
+.seat .lv{font-family:var(--body);font-weight:800;font-size:11px;line-height:1;padding:3px 6px;border-radius:999px;background:var(--gold);color:var(--ink);font-variant-numeric:tabular-nums}
+.seat .xpbar{position:absolute;left:12px;right:70px;bottom:3px;height:3px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}
+.seat .xpbar b{display:block;height:100%;width:0;background:var(--gold);border-radius:3px;transition:width .6s ease}
+.xp-pop{position:absolute;left:40%;top:-6px;transform:translateX(-50%);font-family:var(--display);font-weight:800;font-size:18px;color:var(--gold);text-shadow:0 2px 0 rgba(0,0,0,.4);pointer-events:none;white-space:nowrap;z-index:2}
+.banner{position:fixed;left:50%;top:calc(56px + env(safe-area-inset-top,0px));z-index:4;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:.3px;padding:10px 20px;border-radius:999px;box-shadow:0 5px 0 var(--gold-dark),0 12px 30px rgba(0,0,0,.4);white-space:nowrap;pointer-events:none}
+
+/* Profile card in the menu */
+.profile{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:var(--ink);color:var(--ivory)}
+.lvbadge{flex:none;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#ffe08a,var(--gold) 55%,var(--gold-dark));color:var(--ink);font-family:var(--display);font-weight:800;font-size:24px;box-shadow:0 3px 0 #7a5404,inset 0 -3px 0 rgba(0,0,0,.15);font-variant-numeric:tabular-nums}
+.pinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.pinfo b{font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:.3px}
+.xptrack{height:8px;border-radius:8px;background:rgba(255,255,255,.14);overflow:hidden}
+.xptrack i{display:block;height:100%;width:0;border-radius:8px;background:linear-gradient(90deg,var(--gold),#ffd966);transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.pmeta{display:flex;justify-content:space-between;gap:8px;font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.next{font-size:12.5px;font-weight:700;color:#cfe0e6}
+.next em{font-style:normal;color:var(--gold)}
+
+/* XP summary on the end screen */
+.xpsum{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:16px;background:var(--ink);color:var(--ivory)}
+.xprow{display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
+.xprow span:last-child{color:var(--gold)}
+.xprow.total{font-family:var(--display);font-weight:800;font-size:19px;border-top:1px solid rgba(255,255,255,.14);padding-top:8px}
+.xprow.lvl span:last-child{color:var(--muted)}
+
+/* Reward reveal */
+#reward,#collection{z-index:6}
+#reward .card{align-items:center;text-align:center;isolation:isolate;gap:10px}
+.kicker{font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#6b777d}
+.reward-lv{font-family:var(--display);font-weight:800;font-size:52px;line-height:1;color:var(--gold-dark)}
+.reward-show{position:relative;width:128px;height:128px;margin:14px 0;border-radius:28px;display:grid;place-items:center;background:var(--ink)}
+.reward-show::before{content:"";position:absolute;inset:-34px;z-index:-1;border-radius:50%;background:repeating-conic-gradient(rgba(242,176,30,.3) 0 9deg,transparent 9deg 18deg);animation:spin 9s linear infinite}
+.reward-show .pv{width:96px;height:96px}
+.reward-show .die.mini{width:74px;height:74px;padding:12px}
+.reward-show .die.mini i{width:12px;height:12px}
+.reward-big{font-family:var(--display);font-weight:800;font-size:54px;color:var(--gold)}
+.reward-name{font-family:var(--display);font-weight:800;font-size:26px;line-height:1.1}
+#rExtra{font-size:14px}
+#reward .actions{width:100%;margin-top:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:7;overflow:hidden}
+.confetti i{position:absolute;top:-14px;width:8px;height:12px;border-radius:2px}
+
+/* Collection */
+.tabs{display:flex;gap:4px;padding:4px;border-radius:14px;background:#ece2c8}
+.tabs button{flex:1;border:0;background:none;padding:9px 6px;border-radius:10px;font-weight:800;font-size:14px;color:var(--ink)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--ivory)}
+.items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.item{border:2px solid transparent;background:#efe6cf;border-radius:14px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;font-weight:800;font-size:12.5px;line-height:1.15;text-align:center;color:var(--ink);min-width:0}
+.item.on{border-color:var(--ink);background:#fffaf0}
+.item:disabled{cursor:default}
+.item.locked .pv{filter:grayscale(1);opacity:.45}
+.item small{font-size:11px;font-weight:700;color:#6b777d}
+.item.on small{color:var(--gold-dark)}
+.pv{width:56px;height:56px;display:grid;place-items:center;border-radius:12px}
+.mini-board{width:46%;height:46%;border-radius:4px;background:conic-gradient(#27a35a 0 25%,#f2b01e 0 50%,#2e7bd6 0 75%,#e0474c 0);box-shadow:0 0 0 3px #fbf5e6,0 4px 8px rgba(0,0,0,.4)}
+@media (prefers-reduced-motion:reduce){.die.ready,.die.rolling,.reward-show::before{animation:none}}
 </style>
 
 <main id="app">
@@ -110,6 +178,15 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
   <form class="card" id="menuForm">
     <h2>Ki nevet <span>a végén?</span></h2>
     <p>Dobj a kockával, juttasd célba mind a négy bábudat, és üsd le a gép bábuit.</p>
+    <div class="profile">
+      <div class="lvbadge" id="pLevel">1</div>
+      <div class="pinfo">
+        <b id="pTitle">Kezdő</b>
+        <div class="xptrack"><i id="pBar"></i></div>
+        <div class="pmeta"><span id="pXP">0 / 100 XP</span><span id="pStats">0 játék</span></div>
+        <div class="next" id="pNext"></div>
+      </div>
+    </div>
     <div class="field"><span>Játékosok</span>
       <div class="seg">
         <label><input type="radio" name="players" id="pl2" value="2"><span>1 ellenfél</span></label>
@@ -133,6 +210,7 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
     <div class="actions">
       <button class="btn" type="submit" id="newBtn">Új játék</button>
       <button class="btn alt" type="button" id="resumeBtn" hidden>Játék folytatása</button>
+      <button class="btn alt" type="button" id="collBtn">Gyűjtemény</button>
     </div>
     <p class="rules">Hatossal hozhatsz ki bábut a házból. Hatos, ütés vagy célba érés után újra dobhatsz. Három hatos egymás után elveszi a köröd. A csillagos mezőkön nem lehet ütni.</p>
   </form>
@@ -142,12 +220,43 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
   <div class="card">
     <h2 id="endTitle">Nyertél!</h2>
     <ol class="ranks" id="ranks"></ol>
+    <div class="xpsum" id="xpSum"></div>
     <div class="actions">
       <button class="btn" type="button" id="againBtn">Még egy kör</button>
       <button class="btn alt" type="button" id="toMenuBtn">Beállítások</button>
     </div>
   </div>
 </div>
+
+<div class="overlay" id="reward" hidden>
+  <div class="card" role="dialog" aria-labelledby="rLevel">
+    <span class="kicker">Szintlépés</span>
+    <div class="reward-lv" id="rLevel">2. szint</div>
+    <div class="reward-show" id="rShow"></div>
+    <span class="kicker" id="rKind">Új kocka</span>
+    <div class="reward-name" id="rName">Diófa</div>
+    <p id="rExtra" hidden></p>
+    <div class="actions">
+      <button class="btn" type="button" id="rEquip">Használom</button>
+      <button class="btn alt" type="button" id="rNext">Tovább</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="collection" hidden>
+  <div class="card">
+    <h2>Gyűjtemény</h2>
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" data-kind="token" aria-selected="true">Bábuk</button>
+      <button type="button" role="tab" data-kind="dice" aria-selected="false">Kockák</button>
+      <button type="button" role="tab" data-kind="table" aria-selected="false">Asztalok</button>
+    </div>
+    <div class="items" id="items"></div>
+    <div class="actions"><button class="btn" type="button" id="collDone">Kész</button></div>
+  </div>
+</div>
+
+<div class="banner" id="banner" hidden></div>
 
 <script>
 (() => {
@@ -186,6 +295,34 @@ const $=s=>document.querySelector(s);
 const canvas=$('#board'), ctx=canvas.getContext('2d');
 const seatEls=[...document.querySelectorAll('.seat')].sort((a,b)=>a.dataset.seat-b.dataset.seat);
 const statusEl=$('#status');
+
+/* ---------- Progression: XP, levels and unlockable rewards (saved on this device) ---------- */
+const PROFILE_KEY='ludo-profile-v1';
+const COSMETICS={
+  token:[{id:'classic',name:'Klasszikus',lv:1},{id:'star',name:'Csillag',lv:4},{id:'crown',name:'Korona',lv:7},{id:'gem',name:'Drágakő',lv:10},{id:'heart',name:'Szív',lv:13},{id:'bolt',name:'Villám',lv:16},{id:'gold',name:'Aranyperem',lv:19}],
+  dice:[{id:'ivory',name:'Elefántcsont',lv:1},{id:'wood',name:'Diófa',lv:2},{id:'midnight',name:'Éjkék',lv:5},{id:'candy',name:'Cukorka',lv:8},{id:'marble',name:'Márvány',lv:11},{id:'gold',name:'Arany',lv:14},{id:'galaxy',name:'Galaxis',lv:17},{id:'rainbow',name:'Szivárvány',lv:20}],
+  table:[{id:'teal',name:'Kékeszöld',lv:1},{id:'wine',name:'Bordó',lv:3},{id:'forest',name:'Erdő',lv:6},{id:'night',name:'Éjszaka',lv:9},{id:'sunset',name:'Naplemente',lv:12},{id:'royal',name:'Királyi',lv:15},{id:'ocean',name:'Óceán',lv:18}],
+};
+const TABLES={teal:['#15313d','#1f4a5c'],wine:['#2e0f18','#6b2238'],forest:['#0f2a18','#1f5a33'],night:['#12102b','#2f2a66'],sunset:['#2d1424','#8c3d3a'],royal:['#1f0c30','#5a2a78'],ocean:['#07233b','#12608f']};
+const TITLES=[[1,'Kezdő'],[5,'Ügyes dobó'],[10,'Bábumester'],[15,'Kockakirály'],[20,'Legenda']];
+const KIND_LABEL={token:'Új bábu',dice:'Új kocka',table:'Új asztal'};
+const KIND_NOUN={token:'bábu',dice:'kocka',table:'asztal'};
+const XP_PLACE={4:[120,60,40,25],2:[80,25]};
+let profile={xp:0,games:0,wins:0,pending:[],equip:{token:'classic',dice:'ivory',table:'teal'}};
+function loadProfile(){try{const p=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');if(p)profile={...profile,...p,equip:{...profile.equip,...(p.equip||{})}}}catch(e){}}
+function saveProfile(){try{localStorage.setItem(PROFILE_KEY,JSON.stringify(profile))}catch(e){}}
+const need=l=>100+(l-1)*50;
+function levelInfo(xp){let l=1;while(xp>=need(l)){xp-=need(l);l++}return{level:l,into:xp,need:need(l)}}
+const myLevel=()=>levelInfo(profile.xp).level;
+const titleFor=l=>TITLES.filter(([lv])=>lv<=l).pop()[1];
+const findItem=(kind,id)=>COSMETICS[kind].find(i=>i.id===id);
+function rewardsAt(l){
+  const out=[];
+  for(const kind in COSMETICS)for(const it of COSMETICS[kind])if(it.lv===l)out.push({kind,...it});
+  return out;
+}
+const newTitleAt=l=>(TITLES.find(([lv])=>lv===l)||[])[1];
+function nextReward(l){for(let n=l+1;n<=20;n++){const r=rewardsAt(n);if(r.length)return{lv:n,r:r[0]}}return null}
 
 /* ---------- Helpers ---------- */
 const cur=()=>G.seats[G.turn];
@@ -267,6 +404,9 @@ const sfx={
     [2093,2637,3136,2637,3136].forEach((f,i)=>mallet(f,1+i*.07,.035,.6,.6));
   })},
   lose(){play(()=>[659.25,587.33,523.25,392].forEach((f,i)=>mallet(f,i*.16,.11,.6,.45)))},
+  xp(){play(()=>{mallet(1318.5,0,.05,.25,.3);mallet(1975.5,.06,.04,.35,.3)})},
+  levelup(){play(()=>{[783.99,987.77,1174.66,1567.98].forEach((f,i)=>mallet(f,i*.07,.1,.5,.5));[2349.3,3136].forEach((f,i)=>mallet(f,.3+i*.08,.04,.8,.6))})},
+  reward(){play(()=>{knock(0,.25,160);[523.25,783.99,1046.5,1318.5,1567.98].forEach((f,i)=>mallet(f,.05+i*.09,.11,.7,.5));[1046.5,1318.5,1567.98].forEach(f=>voice({f,at:.5,a:.2,d:1.4,vol:.035,rev:.6}))})},
 };
 
 /* ---------- Positions ---------- */
@@ -336,14 +476,34 @@ function buildBoard(){
 }
 
 /* ---------- Rendering ---------- */
-function drawToken(x,y,col,scale,lift,glow,t){
+// Paints one token on any 2D context; `style` is the unlockable emblem design
+function paintToken(g,px,py,r,col,style,groundY){
+  g.fillStyle='rgba(0,0,0,.25)';g.beginPath();g.ellipse(px,groundY,r*.9,r*.38,0,0,Math.PI*2);g.fill();
+  if(style==='gold'){
+    const gr=g.createLinearGradient(px-r,py-r,px+r,py+r);gr.addColorStop(0,'#fff1b0');gr.addColorStop(.5,'#e0a91e');gr.addColorStop(1,'#8a5a00');
+    g.beginPath();g.arc(px,py,r*1.14,0,Math.PI*2);g.fillStyle=gr;g.fill();
+  }
+  g.beginPath();g.arc(px,py,r,0,Math.PI*2);g.fillStyle=col.dark;g.fill();
+  g.beginPath();g.arc(px,py-r*.08,r*.86,0,Math.PI*2);g.fillStyle=col.fill;g.fill();
+  const cy=py-r*.08;g.fillStyle='rgba(255,255,255,.95)';
+  if(style==='star'){star(g,px,cy,r*.55);g.fill()}
+  else if(style==='crown'){
+    const w=r*.56,h=r*.46;g.beginPath();g.moveTo(px-w,cy+h*.7);g.lineTo(px-w,cy-h*.5);g.lineTo(px-w*.45,cy);g.lineTo(px,cy-h);g.lineTo(px+w*.45,cy);g.lineTo(px+w,cy-h*.5);g.lineTo(px+w,cy+h*.7);g.closePath();g.fill();
+  }else if(style==='gem'){
+    const w=r*.48,h=r*.58;g.beginPath();g.moveTo(px,cy-h);g.lineTo(px+w,cy-h*.2);g.lineTo(px,cy+h);g.lineTo(px-w,cy-h*.2);g.closePath();g.fill();
+    g.strokeStyle=col.fill;g.lineWidth=r*.07;g.beginPath();g.moveTo(px-w,cy-h*.2);g.lineTo(px+w,cy-h*.2);g.moveTo(px,cy-h);g.lineTo(px,cy+h);g.stroke();
+  }else if(style==='heart'){
+    const k=r*.48;g.beginPath();g.moveTo(px,cy+k*.95);g.bezierCurveTo(px-k*1.7,cy-k*.1,px-k*.65,cy-k*1.35,px,cy-k*.45);g.bezierCurveTo(px+k*.65,cy-k*1.35,px+k*1.7,cy-k*.1,px,cy+k*.95);g.fill();
+  }else if(style==='bolt'){
+    const k=r*.6,pts=[[.18,-1],[-.55,.12],[-.04,.12],[-.22,1],[.55,-.16],[.04,-.16]];
+    g.beginPath();pts.forEach(([a,b],i)=>g[i?'lineTo':'moveTo'](px+a*k,cy+b*k));g.closePath();g.fill();
+  }else{g.beginPath();g.arc(px,cy,r*.48,0,Math.PI*2);g.lineWidth=r*.2;g.strokeStyle='rgba(255,255,255,.92)';g.stroke()}
+  g.beginPath();g.arc(px-r*.3,py-r*.42,r*.18,0,Math.PI*2);g.fillStyle='rgba(255,255,255,.45)';g.fill();
+}
+function drawToken(x,y,col,scale,lift,glow,t,style){
   const c=size/15,r=.36*c*scale,px=x*c,py=(y-lift)*c;
-  ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(px,y*c+r*.6,r*.9,r*.38,0,0,Math.PI*2);ctx.fill();
   if(glow){const pr=r*(1.45+.15*Math.sin(t/180));ctx.beginPath();ctx.arc(px,py,pr,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=Math.max(2,c*.08);ctx.stroke();ctx.strokeStyle=col.dark;ctx.lineWidth=Math.max(1,c*.03);ctx.stroke()}
-  ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.fillStyle=col.dark;ctx.fill();
-  ctx.beginPath();ctx.arc(px,py-r*.08,r*.86,0,Math.PI*2);ctx.fillStyle=col.fill;ctx.fill();
-  ctx.beginPath();ctx.arc(px,py-r*.08,r*.48,0,Math.PI*2);ctx.lineWidth=r*.2;ctx.strokeStyle='rgba(255,255,255,.92)';ctx.stroke();
-  ctx.beginPath();ctx.arc(px-r*.3,py-r*.42,r*.18,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.45)';ctx.fill();
+  paintToken(ctx,px,py,r,col,style,y*c+r*.6);
 }
 function render(t){
   requestAnimationFrame(render);
@@ -368,14 +528,14 @@ function render(t){
   items.sort((a,b)=>a.y-b.y);
   for(const it of items){
     lastPos[it.key]=[it.x,it.y];
-    drawToken(it.x,it.y,colOf(it.s),it.scale,it.lift,it.s===0&&movable.has(it.k),t);
+    drawToken(it.x,it.y,colOf(it.s),it.scale,it.lift,it.s===0&&movable.has(it.k),t,it.s===0?profile.equip.token:'classic');
   }
 }
 
 /* ---------- Dice UI ---------- */
 const FACES={0:[],1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
-seatEls.forEach(el=>{
-  el.innerHTML='<div class="who"><div class="name"><span class="dot"></span><span class="nm"></span></div><div class="sub"></div></div><button class="die" type="button" aria-label="Dobás">'+'<i></i>'.repeat(9)+'</button>';
+seatEls.forEach((el,s)=>{
+  el.innerHTML='<div class="who"><div class="name"><span class="dot"></span><span class="nm"></span>'+(s===0?'<span class="lv" title="Szint">1</span>':'')+'</div><div class="sub"></div></div><button class="die" type="button" aria-label="Dobás">'+'<i></i>'.repeat(9)+'</button>'+(s===0?'<div class="xpbar"><b></b></div>':'');
 });
 function setFace(die,v){die.querySelectorAll('i').forEach((pip,i)=>pip.classList.toggle('on',FACES[v].includes(i)))}
 const humanDie=seatEls[0].querySelector('.die');
@@ -493,12 +653,14 @@ async function doMove(s,k){
     }
   }
   G.tokens[s][k]=to;delete anim[key];
+  if(s===0&&from<0)gainXP(3,'out');
   let bonus=G.dice===6,msg='';
   if(to<=LAST_MAIN&&!SAFE.has(glob(s,to))){
     const vic=opponentsAt(s,glob(s,to));
     if(vic.length){
       bonus=true;const hitMe=vic.some(([o])=>o===0);(hitMe&&s!==0?sfx.hurt:sfx.capture)();buzz(s===0?[30,40,60]:vic.some(([o])=>o===0)?120:0);
       const names=[...new Set(vic.filter(([o])=>o!==0).map(([o])=>PALETTE[G.colors[o]].acc))];
+      if(s===0)gainXP(15*vic.length,'cap');
       msg=s===0?'Leütötted '+names.join(' és ')+'!'
         :subj(s)+(hitMe?' leütött téged'+(names.length?' és '+names.join(' és '):''):' leütötte '+names.join(' és '))+'!';
       await Promise.all(vic.map(([o,kk])=>{
@@ -509,7 +671,7 @@ async function doMove(s,k){
     }
   }
   if(to<=LAST_MAIN&&SAFE.has(glob(s,to)))sfx.safe();
-  if(to===HOME){bonus=true;sfx.home();msg=s===0?'Egy bábud célba ért!':subj(s)+' egyik bábuja célba ért!'}
+  if(to===HOME){bonus=true;sfx.home();msg=s===0?'Egy bábud célba ért!':subj(s)+' egyik bábuja célba ért!';if(s===0)gainXP(20,'home')}
   if(msg)status(msg);
   if(done(s)&&!G.ranking.includes(s))G.ranking.push(s);
   renderSeats();
@@ -529,7 +691,15 @@ function checkOver(){
   $('#endTitle').innerHTML=place===0?'<span>Nyertél!</span>':'A <span>'+ordinal(place)+'</span> helyen végeztél';
   $('#ranks').innerHTML=G.ranking.map((s,i)=>'<li><b>'+ordinal(i)+'</b><i style="--c:'+colOf(s).fill+'"></i>'+nameOf(s)+'</li>').join('');
   status(place===0?'Megnyerted a játékot!':'Vége a játéknak.');
-  setTimeout(()=>{$('#endScreen').hidden=false},900);
+  const sharp=G.level==='sharp',placeXP=Math.round((XP_PLACE[G.seats.length][place]||20)*(sharp?1.5:1));
+  gainXP(placeXP,'place');profile.games++;if(place===0)profile.wins++;saveProfile();renderXP();
+  const rows=[['Kihozott bábuk',G.xp.out],['Ütések',G.xp.cap],['Célba ért bábuk',G.xp.home],[ordinal(place)+' hely'+(sharp?' (ügyes gép, ×1,5)':''),G.xp.place]].filter(r=>r[1]>0);
+  const total=rows.reduce((a,r)=>a+r[1],0),li=levelInfo(profile.xp);
+  $('#xpSum').innerHTML=rows.map(([l,v])=>'<div class="xprow"><span>'+l+'</span><span>+'+v+' XP</span></div>').join('')
+    +'<div class="xprow total"><span>Összesen</span><span>+'+total+' XP</span></div>'
+    +'<div class="xprow lvl"><span>'+li.level+'. szint</span><span>'+li.into+' / '+li.need+' XP</span></div><div class="xptrack"><i id="endBar"></i></div>';
+  setTimeout(()=>{$('#endScreen').hidden=false;requestAnimationFrame(()=>requestAnimationFrame(()=>{$('#endBar').style.width=(li.into/li.need*100)+'%'}));
+    if(profile.pending.length)setTimeout(()=>showRewards(),1400)},900);
   return true;
 }
 
@@ -537,18 +707,18 @@ function checkOver(){
 function newGame(){
   const ci=ORDER.indexOf(settings.color);
   G={colors:[0,1,2,3].map(i=>ORDER[(ci+i)%4]),seats:settings.players===2?[0,2]:[0,1,2,3],level:settings.level,
-     tokens:[0,1,2,3].map(()=>[-1,-1,-1,-1]),turn:0,dice:0,sixes:0,phase:'roll',moves:[],ranking:[],lastDice:[0,0,0,0],over:false};
+     tokens:[0,1,2,3].map(()=>[-1,-1,-1,-1]),turn:0,dice:0,sixes:0,phase:'roll',moves:[],ranking:[],lastDice:[0,0,0,0],over:false,xp:{}};
   begin();
 }
 function loadGame(d){
-  G={...d,dice:0,phase:'roll',moves:[],over:false};
+  G={xp:{},...d,dice:0,phase:'roll',moves:[],over:false};
   begin();
 }
 function begin(){
   for(const k in anim)delete anim[k];
   pending=[];buildBoard();closeMenu();$('#endScreen').hidden=true;startTurn();
 }
-function serial(){return G&&!G.over?{colors:G.colors,seats:G.seats,level:G.level,tokens:G.tokens,turn:G.turn,sixes:G.sixes,ranking:G.ranking,lastDice:G.lastDice}:null}
+function serial(){return G&&!G.over?{colors:G.colors,seats:G.seats,level:G.level,tokens:G.tokens,turn:G.turn,sixes:G.sixes,ranking:G.ranking,lastDice:G.lastDice,xp:G.xp}:null}
 function save(){try{const d=serial();d&&localStorage.setItem(SAVE_KEY,JSON.stringify({game:d,settings}))}catch(e){}}
 function clearSave(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}}
 function readSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'null')}catch(e){return null}}
@@ -565,7 +735,8 @@ function openMenu(){
   const btn=$('#resumeBtn');
   btn.hidden=!((G&&!G.over)||(saved&&saved.game));
   btn.textContent=G?'Játék folytatása':'Mentett játék folytatása';
-  menu.hidden=false;
+  renderXP();menu.hidden=false;
+  if(profile.pending.length)setTimeout(()=>showRewards(),300);
 }
 function closeMenu(){
   menu.hidden=true;paused=false;
@@ -591,6 +762,106 @@ try{soundOn=localStorage.getItem('ludo-sound')!=='off'}catch(e){}
 showSound();
 soundBtn.addEventListener('click',()=>{soundOn=!soundOn;unlockAudio();showSound();sfx.tap();try{localStorage.setItem('ludo-sound',soundOn?'on':'off')}catch(e){}});
 
+/* ---------- XP feedback, reward reveal, collection ---------- */
+function gainXP(n,key){
+  if(!G||n<=0)return;
+  const before=myLevel();
+  profile.xp+=n;G.xp[key]=(G.xp[key]||0)+n;
+  const after=myLevel();
+  for(let l=before+1;l<=after;l++)profile.pending.push(l);
+  saveProfile();renderXP();popXP(n);
+  if(after>before){setTimeout(()=>{sfx.levelup();buzz([40,40,80])},250);showBanner('Szintlépés! '+after+'. szint')}
+}
+function popXP(n){
+  const el=document.createElement('div');el.className='xp-pop';el.textContent='+'+n+' XP';seatEls[0].appendChild(el);sfx.xp();
+  const a=el.animate([{opacity:0,transform:'translate(-50%,8px) scale(.8)'},{opacity:1,transform:'translate(-50%,-16px) scale(1.1)',offset:.25},{opacity:0,transform:'translate(-50%,-40px) scale(1)'}],{duration:REDUCED?700:1200,easing:'ease-out'});
+  a.onfinish=()=>el.remove();
+}
+let bannerTimer=0;
+function showBanner(t){
+  const b=$('#banner');b.textContent=t;b.hidden=false;clearTimeout(bannerTimer);
+  if(!REDUCED)b.animate([{transform:'translate(-50%,-20px) scale(.8)',opacity:0},{transform:'translate(-50%,0) scale(1.08)',opacity:1,offset:.6},{transform:'translate(-50%,0) scale(1)',opacity:1}],{duration:450,easing:'ease-out'});
+  bannerTimer=setTimeout(()=>{b.hidden=true},2400);
+}
+function renderXP(){
+  const{level,into,need:nd}=levelInfo(profile.xp),pct=(into/nd*100)+'%';
+  seatEls[0].querySelector('.lv').textContent=level;
+  seatEls[0].querySelector('.xpbar b').style.width=pct;
+  $('#pLevel').textContent=level;$('#pTitle').textContent=titleFor(level);
+  $('#pBar').style.width=pct;$('#pXP').textContent=into+' / '+nd+' XP';
+  $('#pStats').textContent=profile.games+' játék · '+profile.wins+' győzelem';
+  const nx=nextReward(level);
+  $('#pNext').innerHTML=nx?'Következő jutalom: <em>'+nx.r.name+' '+KIND_NOUN[nx.r.kind]+'</em> ('+nx.lv+'. szint)':'Minden jutalmat megszereztél!';
+}
+function applyCosmetics(){
+  const e=profile.equip,lv=myLevel();
+  for(const kind in COSMETICS){const it=findItem(kind,e[kind]);if(!it||it.lv>lv)e[kind]=COSMETICS[kind][0].id}
+  const[a,b]=TABLES[e.table],root=document.documentElement.style;
+  root.setProperty('--felt',a);root.setProperty('--felt-2',b);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content',a);
+  humanDie.className=(humanDie.className.replace(/\bskin-\S+/g,'')+' skin-'+e.dice).replace(/\s+/g,' ').trim();
+}
+function preview(kind,id,px){
+  const box=document.createElement('div');box.className='pv';
+  if(kind==='token'){
+    const cv=document.createElement('canvas'),d=Math.min(window.devicePixelRatio||1,3);
+    cv.width=cv.height=Math.round(px*d);cv.style.width=cv.style.height=px+'px';
+    const g=cv.getContext('2d');g.scale(d,d);const r=px*.3;
+    paintToken(g,px/2,px*.46,r,PALETTE[settings.color],id,px*.46+r*.6);box.appendChild(cv);
+  }else if(kind==='dice'){
+    box.innerHTML='<span class="die mini skin-'+id+'">'+'<i></i>'.repeat(9)+'</span>';setFace(box.firstChild,5);
+  }else{
+    const[a,b]=TABLES[id];box.style.background='radial-gradient(circle at 50% 45%,'+b+','+a+' 78%)';box.innerHTML='<span class="mini-board"></span>';
+  }
+  return box;
+}
+function confetti(){
+  if(REDUCED)return;
+  const box=document.createElement('div');box.className='confetti';document.body.appendChild(box);
+  const cols=['#e0474c','#27a35a','#f2b01e','#2e7bd6','#fbf5e6'];
+  for(let i=0;i<70;i++){
+    const p=document.createElement('i');p.style.left=Math.random()*100+'%';p.style.background=cols[i%5];box.appendChild(p);
+    const dx=(Math.random()-.5)*180,rot=Math.random()*900-450;
+    p.animate([{transform:'translate(0,0) rotate(0deg)'},{transform:'translate('+dx+'px,'+(innerHeight+40)+'px) rotate('+rot+'deg)'}],{duration:1700+Math.random()*1500,delay:Math.random()*400,easing:'cubic-bezier(.2,.6,.4,1)',fill:'forwards'});
+  }
+  setTimeout(()=>box.remove(),3800);
+}
+let rewardItem=null,rewardOpen=false;
+function showRewards(){if(!rewardOpen&&profile.pending.length){rewardOpen=true;nextRewardCard()}}
+function nextRewardCard(){
+  const l=profile.pending.shift();saveProfile();
+  if(l===undefined){$('#reward').hidden=true;rewardOpen=false;return}
+  const it=rewardsAt(l)[0],title=newTitleAt(l),show=$('#rShow');
+  rewardItem=it||null;
+  $('#rLevel').textContent=l+'. szint';show.innerHTML='';
+  if(it){show.appendChild(preview(it.kind,it.id,96));$('#rKind').textContent=KIND_LABEL[it.kind];$('#rName').textContent=it.name}
+  else{show.innerHTML='<span class="reward-big">'+l+'</span>';$('#rKind').textContent='Legenda';$('#rName').textContent='Minden jutalmat megszereztél!'}
+  $('#rExtra').hidden=!title;if(title)$('#rExtra').textContent='Új címet is kaptál: '+title;
+  $('#rEquip').hidden=!it;
+  $('#reward').hidden=false;confetti();sfx.reward();buzz([30,50,30]);
+}
+$('#rEquip').addEventListener('click',()=>{
+  if(rewardItem){profile.equip[rewardItem.kind]=rewardItem.id;saveProfile();applyCosmetics()}
+  sfx.tap();nextRewardCard();
+});
+$('#rNext').addEventListener('click',()=>{sfx.tap();nextRewardCard()});
+let collKind='token';
+function renderCollection(){
+  document.querySelectorAll('#collection .tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.kind===collKind)));
+  const lv=myLevel(),wrap=$('#items');wrap.innerHTML='';
+  for(const it of COSMETICS[collKind]){
+    const locked=it.lv>lv,on=profile.equip[collKind]===it.id,b=document.createElement('button');
+    b.type='button';b.className='item'+(on?' on':'')+(locked?' locked':'');b.disabled=locked;
+    b.appendChild(preview(collKind,it.id,56));
+    b.insertAdjacentHTML('beforeend','<span>'+it.name+'</span><small>'+(locked?it.lv+'. szinttől':on?'Használatban':'Kiválasztás')+'</small>');
+    b.addEventListener('click',()=>{profile.equip[collKind]=it.id;saveProfile();applyCosmetics();sfx.tap();renderCollection()});
+    wrap.appendChild(b);
+  }
+}
+document.querySelectorAll('#collection .tabs button').forEach(b=>b.addEventListener('click',()=>{collKind=b.dataset.kind;sfx.tap();renderCollection()}));
+$('#collBtn').addEventListener('click',()=>{unlockAudio();sfx.tap();const f=new FormData(form);settings.color=f.get('color')||settings.color;collKind='token';renderCollection();$('#collection').hidden=false});
+$('#collDone').addEventListener('click',()=>{sfx.tap();$('#collection').hidden=true});
+
 canvas.addEventListener('pointerdown',e=>{
   unlockAudio();
   if(!G||G.phase!=='move'||cur()!==0)return;
@@ -606,6 +877,7 @@ window.claude?.hot?.snapshot?.(()=>({game:serial(),settings}));
 function start(data){
   data=data||{};
   if(data.settings)settings=data.settings;
+  loadProfile();applyCosmetics();renderXP();
   layout();renderSeats();requestAnimationFrame(render);
   if(data.game)loadGame(data.game);
   else{const s=readSave();if(s&&s.settings)settings=s.settings;openMenu();status('')}
