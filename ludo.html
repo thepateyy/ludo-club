@@ -1,0 +1,604 @@
+<title>Ki nevet a végén?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;700;800&display=swap">
+<style>
+/* Layout: one-screen tabletop. Board centred on green-blue felt, player seats above and below like chairs at a table. Single deliberate look. */
+:root{
+  --felt:#15313d; --felt-2:#1f4a5c; --ivory:#fbf5e6; --ink:#1b2a33; --muted:#9dbac6; --gold:#f2b01e; --gold-dark:#b77f06;
+  --display:"Lilita One","Arial Rounded MT Bold",system-ui,sans-serif;
+  --body:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --bs:320px;
+  color-scheme:dark;
+}
+html{box-sizing:border-box;height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{height:100%;margin:0;overflow:hidden;background:var(--felt);background-image:radial-gradient(ellipse at 50% 45%,var(--felt-2),var(--felt) 72%);color:var(--ivory);font-family:var(--body);-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-offset:2px}
+
+#app{height:100%;display:flex;flex-direction:column;align-items:center;gap:6px;padding-inline:16px;padding-block:8px 12px}
+.bar{width:100%;max-width:640px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.bar h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(17px,5vw,22px);white-space:nowrap;letter-spacing:.5px;color:var(--ivory)}
+.bar h1 span{color:var(--gold)}
+.ghost{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;color:var(--ivory)}
+.ghost:active{background:rgba(255,255,255,.16)}
+
+.seats{width:var(--bs);display:flex;justify-content:space-between;gap:10px}
+.seat{--pc:#888;flex:0 1 50%;min-width:0;display:flex;align-items:center;gap:10px;padding:7px 9px;border-radius:16px;background:rgba(255,255,255,.05);border:2px solid transparent;transition:border-color .2s,background .2s}
+.seat.right{flex-direction:row-reverse;text-align:right}
+.seat.empty{visibility:hidden}
+.seat.active{border-color:var(--pc);background:color-mix(in srgb,var(--pc) 22%,transparent)}
+.seat .who{min-width:0;display:flex;flex-direction:column;gap:1px}
+.seat .name{font-family:var(--display);font-size:17px;line-height:1.1;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.seat.right .name{flex-direction:row-reverse}
+.seat .dot{width:12px;height:12px;border-radius:50%;background:var(--pc);box-shadow:0 0 0 2px rgba(255,255,255,.6);flex:none}
+.seat .sub{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.3px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.seat .rank{color:var(--gold)}
+
+.die{flex:none;width:50px;height:50px;border-radius:12px;border:0;padding:8px;background:var(--ivory);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);box-shadow:0 3px 0 #cdbf9c,0 6px 12px rgba(0,0,0,.35);opacity:.45;transition:opacity .2s,transform .15s}
+.die i{width:9px;height:9px;border-radius:50%;background:var(--ink);place-self:center;opacity:0}
+.die i.on{opacity:1}
+.seat.active .die{opacity:1}
+.die.ready{animation:beckon 1.1s ease-in-out infinite;box-shadow:0 3px 0 #cdbf9c,0 0 0 4px var(--pc),0 8px 18px rgba(0,0,0,.4)}
+.die.rolling{animation:tumble .12s linear infinite}
+.die:disabled{cursor:default}
+@keyframes beckon{50%{transform:translateY(-4px) scale(1.06)}}
+@keyframes tumble{0%{transform:rotate(-14deg) translateY(-3px)}50%{transform:rotate(12deg) translateY(2px)}100%{transform:rotate(-14deg) translateY(-3px)}}
+
+#boardWrap{flex:none;padding:6px;display:flex;align-items:center;justify-content:center}
+#table{flex:1;min-height:0;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+#board{display:block;border-radius:14px;box-shadow:0 0 0 6px #0f2630,0 18px 40px rgba(0,0,0,.45);touch-action:none}
+
+#status{margin:0;min-height:22px;font-weight:800;font-size:15px;text-align:center;color:var(--ivory);max-width:var(--bs)}
+
+.overlay{position:fixed;inset:0;z-index:5;display:grid;place-items:center;padding:16px;background:rgba(9,22,28,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.card{width:100%;max-width:380px;max-height:100%;overflow:auto;background:var(--ivory);color:var(--ink);border-radius:22px;padding:22px 20px;display:flex;flex-direction:column;gap:16px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.card h2{margin:0;font-family:var(--display);font-weight:400;font-size:34px;line-height:1;letter-spacing:.5px;text-wrap:balance}
+.card h2 span{color:var(--gold-dark)}
+.card p{margin:0;line-height:1.45;font-weight:600;color:#46545c}
+.field{display:flex;flex-direction:column;gap:6px}
+.field>span{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:#6b777d}
+.seg{display:flex;gap:4px;padding:4px;border-radius:14px;background:#ece2c8}
+.seg label{flex:1;position:relative}
+.seg input{position:absolute;opacity:0;inset:0;margin:0}
+.seg label span{display:block;text-align:center;padding:9px 6px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer}
+.seg input:checked+span{background:var(--ink);color:var(--ivory)}
+.swatches{display:flex;gap:12px}
+.swatches label{position:relative}
+.swatches input{position:absolute;opacity:0;inset:0;margin:0}
+.swatches span{display:block;width:40px;height:40px;border-radius:50%;background:var(--c);box-shadow:inset 0 -4px 0 rgba(0,0,0,.2);cursor:pointer;border:3px solid transparent}
+.swatches input:checked+span{border-color:var(--ink);box-shadow:inset 0 -4px 0 rgba(0,0,0,.2),0 0 0 3px var(--ivory),0 0 0 5px var(--c)}
+.actions{display:flex;flex-direction:column;gap:8px}
+.btn{border:0;border-radius:14px;padding:14px;font-family:var(--display);font-size:20px;letter-spacing:.5px;background:var(--gold);color:var(--ink);box-shadow:0 4px 0 var(--gold-dark)}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--gold-dark)}
+.btn.alt{background:#e3d8bb;box-shadow:0 4px 0 #bfb190}
+.rules{font-size:13px}
+.ranks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ranks li{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:#efe6cf;font-weight:800}
+.ranks li b{font-family:var(--display);font-weight:400;font-size:18px;width:36px;font-variant-numeric:tabular-nums}
+.ranks li i{width:14px;height:14px;border-radius:50%;background:var(--c)}
+@media (prefers-reduced-motion:reduce){.die.ready,.die.rolling{animation:none}}
+</style>
+
+<main id="app">
+  <header class="bar">
+    <button class="ghost" id="menuBtn" type="button">Menü</button>
+    <h1>Ki nevet <span>a végén?</span></h1>
+    <button class="ghost" id="soundBtn" type="button" aria-pressed="true">Hang be</button>
+  </header>
+  <section id="table">
+  <div class="seats"><div class="seat" data-seat="1"></div><div class="seat right" data-seat="2"></div></div>
+  <div id="boardWrap"><canvas id="board" aria-label="Játéktábla"></canvas></div>
+  <div class="seats"><div class="seat" data-seat="0"></div><div class="seat right" data-seat="3"></div></div>
+  <p id="status" aria-live="polite"></p>
+  </section>
+</main>
+
+<div class="overlay" id="menu">
+  <form class="card" id="menuForm">
+    <h2>Ki nevet <span>a végén?</span></h2>
+    <p>Dobj a kockával, juttasd célba mind a négy bábudat, és üsd le a gép bábuit.</p>
+    <div class="field"><span>Játékosok</span>
+      <div class="seg">
+        <label><input type="radio" name="players" id="pl2" value="2"><span>1 ellenfél</span></label>
+        <label><input type="radio" name="players" id="pl4" value="4" checked><span>3 ellenfél</span></label>
+      </div>
+    </div>
+    <div class="field"><span>Gép</span>
+      <div class="seg">
+        <label><input type="radio" name="level" id="lvCasual" value="casual"><span>Laza</span></label>
+        <label><input type="radio" name="level" id="lvSharp" value="sharp" checked><span>Ügyes</span></label>
+      </div>
+    </div>
+    <div class="field"><span>A színed</span>
+      <div class="swatches">
+        <label><input type="radio" name="color" id="cRed" value="red" checked aria-label="Piros"><span style="--c:#e0474c"></span></label>
+        <label><input type="radio" name="color" id="cGreen" value="green" aria-label="Zöld"><span style="--c:#27a35a"></span></label>
+        <label><input type="radio" name="color" id="cYellow" value="yellow" aria-label="Sárga"><span style="--c:#f2b01e"></span></label>
+        <label><input type="radio" name="color" id="cBlue" value="blue" aria-label="Kék"><span style="--c:#2e7bd6"></span></label>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" type="submit" id="newBtn">Új játék</button>
+      <button class="btn alt" type="button" id="resumeBtn" hidden>Játék folytatása</button>
+    </div>
+    <p class="rules">Hatossal hozhatsz ki bábut a házból. Hatos, ütés vagy célba érés után újra dobhatsz. Három hatos egymás után elveszi a köröd. A csillagos mezőkön nem lehet ütni.</p>
+  </form>
+</div>
+
+<div class="overlay" id="endScreen" hidden>
+  <div class="card">
+    <h2 id="endTitle">Nyertél!</h2>
+    <ol class="ranks" id="ranks"></ol>
+    <div class="actions">
+      <button class="btn" type="button" id="againBtn">Még egy kör</button>
+      <button class="btn alt" type="button" id="toMenuBtn">Beállítások</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+/* ---------- Board geometry (15x15 grid, [col,row]) ---------- */
+const TRACK=[[1,6],[2,6],[3,6],[4,6],[5,6],[6,5],[6,4],[6,3],[6,2],[6,1],[6,0],[7,0],[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[9,6],[10,6],[11,6],[12,6],[13,6],[14,6],[14,7],[14,8],[13,8],[12,8],[11,8],[10,8],[9,8],[8,9],[8,10],[8,11],[8,12],[8,13],[8,14],[7,14],[6,14],[6,13],[6,12],[6,11],[6,10],[6,9],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8],[0,7],[0,6]];
+// Seats: 0 bottom-left (you), 1 top-left, 2 top-right, 3 bottom-right. Clockwise turn order.
+const SEATS=[
+  {start:39,home:[[7,13],[7,12],[7,11],[7,10],[7,9]],base:[0,9],side:[0,1]},
+  {start:0, home:[[1,7],[2,7],[3,7],[4,7],[5,7]],   base:[0,0],side:[-1,0]},
+  {start:13,home:[[7,1],[7,2],[7,3],[7,4],[7,5]],   base:[9,0],side:[0,-1]},
+  {start:26,home:[[13,7],[12,7],[11,7],[10,7],[9,7]],base:[9,9],side:[1,0]},
+];
+const SAFE=new Set([0,8,13,21,26,34,39,47]);
+const BASE_SPOTS=[[1.9,1.9],[4.1,1.9],[1.9,4.1],[4.1,4.1]];
+const PALETTE={
+  red:   {fill:'#e0474c',dark:'#9e2328',light:'#f8cfd0',name:'Piros',acc:'a Pirosat'},
+  green: {fill:'#27a35a',dark:'#146236',light:'#c7ecd4',name:'Zöld',acc:'a Zöldet'},
+  yellow:{fill:'#f2b01e',dark:'#a26b04',light:'#fce6ab',name:'Sárga',acc:'a Sárgát'},
+  blue:  {fill:'#2e7bd6',dark:'#16478a',light:'#c9ddf6',name:'Kék',acc:'a Kéket'},
+};
+const ORDER=['red','green','yellow','blue'];
+const HOME=56, LAST_MAIN=50;
+const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const STEP=REDUCED?70:150;
+const SAVE_KEY='ludo-parlour-save-v1';
+
+/* ---------- State ---------- */
+let G=null;
+let settings={players:4,level:'sharp',color:'red'};
+let paused=true, pending=[];
+const anim={};           // token key -> {x,y,lift}
+const lastPos={};        // token key -> [x,y] as drawn
+let soundOn=true, AC=null;
+
+const $=s=>document.querySelector(s);
+const canvas=$('#board'), ctx=canvas.getContext('2d');
+const seatEls=[...document.querySelectorAll('.seat')].sort((a,b)=>a.dataset.seat-b.dataset.seat);
+const statusEl=$('#status');
+
+/* ---------- Helpers ---------- */
+const cur=()=>G.seats[G.turn];
+const glob=(s,p)=>(SEATS[s].start+p)%52;
+const isAI=s=>s!==0;
+const done=s=>G.tokens[s].every(p=>p===HOME);
+const nameOf=s=>s===0?'Te':PALETTE[G.colors[s]].name;
+const subj=s=>'A '+PALETTE[G.colors[s]].name; // AI player as sentence subject
+const colOf=s=>PALETTE[G?G.colors[s]:ORDER[s]];
+const ordinal=n=>(n+1)+'.';
+function status(t){statusEl.textContent=t}
+function schedule(fn,ms){setTimeout(()=>{paused?pending.push(fn):fn()},ms)}
+function tween(ms,f){return new Promise(res=>{const t0=performance.now();const fr=now=>{const t=Math.min(1,(now-t0)/ms);f(t);t<1?requestAnimationFrame(fr):res()};requestAnimationFrame(fr)})}
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+
+/* ---------- Sound: small synth through a warm room reverb. Starts after the first tap. ---------- */
+let bus=null;
+function unlockAudio(){
+  try{
+    if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();bus=makeBus()}
+    if(AC.state==='suspended')AC.resume();
+  }catch(e){}
+}
+function makeBus(){
+  const comp=AC.createDynamicsCompressor();comp.threshold.value=-16;comp.knee.value=12;comp.ratio.value=3;comp.attack.value=.004;comp.release.value=.25;
+  const warm=AC.createBiquadFilter();warm.type='lowpass';warm.frequency.value=6500;warm.Q.value=.5;
+  const dry=AC.createGain();dry.gain.value=.85;
+  const room=AC.createConvolver(),len=Math.floor(AC.sampleRate*1.6),ir=AC.createBuffer(2,len,AC.sampleRate);
+  for(let ch=0;ch<2;ch++){const d=ir.getChannelData(ch);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3)}
+  room.buffer=ir;
+  const wet=AC.createGain();wet.gain.value=.28;
+  dry.connect(warm);room.connect(wet).connect(warm);warm.connect(comp).connect(AC.destination);
+  const nb=AC.createBuffer(1,AC.sampleRate,AC.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+  return{dry,room,noise:nb};
+}
+function send(node,rev){node.connect(bus.dry);if(rev){const g=AC.createGain();g.gain.value=rev;node.connect(g).connect(bus.room)}}
+function voice({f,to,type='sine',at=0,a=.004,d=.25,vol=.2,rev=.3}){
+  const T=AC.currentTime+at,o=AC.createOscillator(),g=AC.createGain();
+  o.type=type;o.frequency.setValueAtTime(f,T);if(to)o.frequency.exponentialRampToValueAtTime(to,T+a+d);
+  g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(vol,T+a);g.gain.exponentialRampToValueAtTime(.0001,T+a+d);
+  o.connect(g);send(g,rev);o.start(T);o.stop(T+a+d+.05);
+}
+function hiss({at=0,d=.05,vol=.2,type='bandpass',f=2000,to,q=1,rev=.15}){
+  const T=AC.currentTime+at,src=AC.createBufferSource(),fl=AC.createBiquadFilter(),g=AC.createGain();
+  src.buffer=bus.noise;fl.type=type;fl.frequency.setValueAtTime(f,T);fl.Q.value=q;if(to)fl.frequency.exponentialRampToValueAtTime(to,T+d);
+  g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(vol,T+.003);g.gain.exponentialRampToValueAtTime(.0001,T+d);
+  src.connect(fl).connect(g);send(g,rev);src.start(T,Math.random()*.8);src.stop(T+d+.05);
+}
+// Soft mallet note (marimba-like): round fundamental, a quick bright overtone, a felt tap
+function mallet(f,at=0,vol=.16,d=.45,rev=.3){
+  voice({f,at,d,vol,rev});
+  voice({f:f*4,at,d:d*.12,vol:vol*.22,rev});
+  voice({f:f*2.01,at,d:d*.3,vol:vol*.12,type:'triangle',rev});
+  hiss({at,d:.018,vol:vol*.35,f:Math.min(f*3,9000),q:2,rev:0});
+}
+// Wooden knock: short pitched body plus a click
+function knock(at=0,vol=.22,f=260){
+  voice({f,to:f*.6,at,d:.09,vol,rev:.12});
+  hiss({at,d:.035,vol:vol*.9,f:1600+Math.random()*1400,q:3,rev:.1});
+}
+const PENTA=[523.25,587.33,659.25,783.99,880,1046.5,1174.66];
+function play(fn){if(soundOn&&AC&&bus&&AC.state==='running')try{fn()}catch(e){}}
+const sfx={
+  rattle(ms){play(()=>{for(let t=0;t<ms/1000;t+=.045+Math.random()*.045)knock(t,.1+Math.random()*.08,380+Math.random()*260)})},
+  land(v){play(()=>{knock(0,.3,200);knock(.07,.12,240);if(v===6)[1046.5,1318.5,1568,2093].forEach((f,i)=>mallet(f,.1+i*.06,.09,.5,.45))})},
+  step(i){play(()=>{mallet(PENTA[Math.min(i,PENTA.length-1)],0,.13,.35);knock(0,.05,300)})},
+  out(){play(()=>{voice({f:260,to:640,d:.16,vol:.2,rev:.2});mallet(783.99,.12,.14);mallet(1046.5,.2,.1)})},
+  safe(){play(()=>{mallet(1568,0,.07,.6,.5);mallet(2093,.08,.05,.7,.5)})},
+  capture(){play(()=>{knock(0,.35,170);hiss({d:.35,vol:.12,type:'lowpass',f:600,to:4000,q:.7,rev:.3});[1046.5,880,783.99,659.25,523.25].forEach((f,i)=>mallet(f,.08+i*.055,.11,.3))})},
+  hurt(){play(()=>{knock(0,.3,150);voice({f:440,to:196,type:'triangle',at:.05,d:.5,vol:.11,rev:.35});voice({f:445,to:198,type:'triangle',at:.05,d:.5,vol:.06,rev:.35})})},
+  home(){play(()=>{[523.25,659.25,783.99,1046.5].forEach((f,i)=>mallet(f,i*.08,.14,.6,.4));mallet(1568,.34,.07,1.1,.6);mallet(2093,.4,.05,1.2,.6)})},
+  turn(){play(()=>{mallet(659.25,0,.08,.5,.4);mallet(987.77,.11,.08,.7,.4)})},
+  nomove(){play(()=>voice({f:220,to:180,d:.25,vol:.12,type:'triangle',rev:.25}))},
+  tap(){play(()=>knock(0,.12,420))},
+  win(){play(()=>{
+    [[523.25,659.25,783.99],[587.33,739.99,880],[659.25,830.61,987.77],[783.99,987.77,1174.66,1567.98]]
+      .forEach((c,i)=>c.forEach((f,j)=>mallet(f,i*.22+j*.03,.1,i===3?1.4:.5,.5)));
+    [523.25,659.25,783.99].forEach(f=>voice({f,at:.66,a:.25,d:1.6,vol:.05,rev:.6}));
+    [2093,2637,3136,2637,3136].forEach((f,i)=>mallet(f,1+i*.07,.035,.6,.6));
+  })},
+  lose(){play(()=>[659.25,587.33,523.25,392].forEach((f,i)=>mallet(f,i*.16,.11,.6,.45)))},
+};
+
+/* ---------- Positions ---------- */
+function cellOf(s,p,k){
+  if(p<0){const[bx,by]=SEATS[s].base,o=BASE_SPOTS[k];return[bx+o[0],by+o[1]]}
+  if(p<=LAST_MAIN){const[x,y]=TRACK[glob(s,p)];return[x+.5,y+.5]}
+  if(p<HOME){const[x,y]=SEATS[s].home[p-51];return[x+.5,y+.5]}
+  const[sx,sy]=SEATS[s].side,sp=(k-1.5)*.36;
+  return[7.5+sx*.95+(sy?sp:0),7.5+sy*.95+(sx?sp:0)];
+}
+
+/* ---------- Canvas sizing & static board ---------- */
+let size=320,dpr=1,boardCache=null;
+function layout(){
+  const app=$('#table'),cs=getComputedStyle(app),kids=[...app.children];
+  const others=kids.filter(e=>e.id!=='boardWrap').reduce((a,e)=>a+e.offsetHeight,0);
+  const availH=app.clientHeight-others-parseFloat(cs.rowGap||0)*(kids.length-1);
+  const availW=app.clientWidth-12;
+  const avail=Math.min(availW,availH-12,640);
+  size=Math.max(240,Math.floor(avail));
+  dpr=Math.min(window.devicePixelRatio||1,3);
+  canvas.style.width=canvas.style.height=size+'px';
+  canvas.width=canvas.height=Math.round(size*dpr);
+  document.documentElement.style.setProperty('--bs',size+'px');
+  buildBoard();
+}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function star(c,cx,cy,R){c.beginPath();for(let i=0;i<10;i++){const r=i%2?R*.45:R,a=-Math.PI/2+i*Math.PI/5;c.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r)}c.closePath()}
+function buildBoard(){
+  const S=Math.round(size*dpr);
+  boardCache=document.createElement('canvas');boardCache.width=boardCache.height=S;
+  const b=boardCache.getContext('2d'),c=S/15;
+  b.save();rr(b,0,0,S,S,c*.6);b.clip();
+  b.fillStyle='#fbf5e6';b.fillRect(0,0,S,S);
+  const inGame=s=>!G||G.seats.includes(s);
+  // track cells
+  for(let y=0;y<15;y++)for(let x=0;x<15;x++){
+    const cross=(x>=6&&x<=8)||(y>=6&&y<=8),center=x>=6&&x<=8&&y>=6&&y<=8;
+    if(cross&&!center){b.fillStyle='#fffdf6';b.fillRect(x*c,y*c,c,c)}
+  }
+  for(let s=0;s<4;s++){
+    const col=colOf(s);b.globalAlpha=inGame(s)?1:.3;
+    b.fillStyle=col.fill;
+    SEATS[s].home.forEach(([x,y])=>b.fillRect(x*c,y*c,c,c));
+    const[sx,sy]=TRACK[SEATS[s].start];b.fillRect(sx*c,sy*c,c,c);
+    // base
+    const[bx,by]=SEATS[s].base;
+    b.fillRect(bx*c,by*c,6*c,6*c);
+    b.fillStyle='#fbf5e6';rr(b,(bx+.7)*c,(by+.7)*c,4.6*c,4.6*c,c*.7);b.fill();
+    BASE_SPOTS.forEach(([ox,oy])=>{b.beginPath();b.arc((bx+ox)*c,(by+oy)*c,c*.56,0,Math.PI*2);b.fillStyle=col.light;b.fill();b.lineWidth=c*.09;b.strokeStyle=col.fill;b.stroke()});
+    // centre triangle
+    const tri={'0,1':[[6,9],[9,9]],'-1,0':[[6,6],[6,9]],'0,-1':[[6,6],[9,6]],'1,0':[[9,6],[9,9]]}[SEATS[s].side.join()];
+    b.beginPath();b.moveTo(tri[0][0]*c,tri[0][1]*c);b.lineTo(tri[1][0]*c,tri[1][1]*c);b.lineTo(7.5*c,7.5*c);b.closePath();b.fillStyle=col.fill;b.fill();
+    b.globalAlpha=1;
+  }
+  // grid lines
+  b.strokeStyle='#d6cbb0';b.lineWidth=Math.max(1,c*.045);
+  for(let y=0;y<15;y++)for(let x=0;x<15;x++){
+    const cross=(x>=6&&x<=8)||(y>=6&&y<=8),center=x>=6&&x<=8&&y>=6&&y<=8;
+    if(cross&&!center)b.strokeRect(x*c,y*c,c,c);
+  }
+  // safe stars
+  SAFE.forEach(g=>{const[x,y]=TRACK[g];const isStart=SEATS.some(s=>s.start===g);star(b,(x+.5)*c,(y+.5)*c,c*.33);b.fillStyle=isStart?'rgba(255,255,255,.85)':'#cbbd97';b.fill()});
+  // centre outline
+  b.strokeStyle='rgba(0,0,0,.12)';b.lineWidth=c*.05;b.strokeRect(6*c,6*c,3*c,3*c);
+  b.restore();
+}
+
+/* ---------- Rendering ---------- */
+function drawToken(x,y,col,scale,lift,glow,t){
+  const c=size/15,r=.36*c*scale,px=x*c,py=(y-lift)*c;
+  ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(px,y*c+r*.6,r*.9,r*.38,0,0,Math.PI*2);ctx.fill();
+  if(glow){const pr=r*(1.45+.15*Math.sin(t/180));ctx.beginPath();ctx.arc(px,py,pr,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=Math.max(2,c*.08);ctx.stroke();ctx.strokeStyle=col.dark;ctx.lineWidth=Math.max(1,c*.03);ctx.stroke()}
+  ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.fillStyle=col.dark;ctx.fill();
+  ctx.beginPath();ctx.arc(px,py-r*.08,r*.86,0,Math.PI*2);ctx.fillStyle=col.fill;ctx.fill();
+  ctx.beginPath();ctx.arc(px,py-r*.08,r*.48,0,Math.PI*2);ctx.lineWidth=r*.2;ctx.strokeStyle='rgba(255,255,255,.92)';ctx.stroke();
+  ctx.beginPath();ctx.arc(px-r*.3,py-r*.42,r*.18,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.45)';ctx.fill();
+}
+function render(t){
+  requestAnimationFrame(render);
+  if(!boardCache)return;
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.drawImage(boardCache,0,0);
+  if(!G)return;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const movable=new Set(G.phase==='move'&&cur()===0?G.moves:[]);
+  const items=[],groups={};
+  for(const s of G.seats)for(let k=0;k<4;k++){
+    const key=s*4+k,a=anim[key];
+    if(a){items.push({s,k,key,x:a.x,y:a.y,lift:a.lift,scale:1});continue}
+    const p=G.tokens[s][k],[x,y]=cellOf(s,p,k);
+    const it={s,k,key,x,y,lift:0,scale:p===HOME?.62:1};items.push(it);
+    if(p>=0&&p<HOME)(groups[x+','+y]=groups[x+','+y]||[]).push(it);
+  }
+  for(const g of Object.values(groups)){
+    if(g.length<2)continue;
+    g.forEach((it,i)=>{const a=-Math.PI/2+i*2*Math.PI/g.length;it.x+=Math.cos(a)*.2;it.y+=Math.sin(a)*.2;it.scale=.74});
+  }
+  items.sort((a,b)=>a.y-b.y);
+  for(const it of items){
+    lastPos[it.key]=[it.x,it.y];
+    drawToken(it.x,it.y,colOf(it.s),it.scale,it.lift,it.s===0&&movable.has(it.k),t);
+  }
+}
+
+/* ---------- Dice UI ---------- */
+const FACES={0:[],1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+seatEls.forEach(el=>{
+  el.innerHTML='<div class="who"><div class="name"><span class="dot"></span><span class="nm"></span></div><div class="sub"></div></div><button class="die" type="button" aria-label="Dobás">'+'<i></i>'.repeat(9)+'</button>';
+});
+function setFace(die,v){die.querySelectorAll('i').forEach((pip,i)=>pip.classList.toggle('on',FACES[v].includes(i)))}
+const humanDie=seatEls[0].querySelector('.die');
+humanDie.addEventListener('click',()=>{unlockAudio();if(G&&!G.over&&cur()===0&&G.phase==='roll')doRoll()});
+function renderSeats(){
+  for(let s=0;s<4;s++){
+    const el=seatEls[s],on=!!G&&G.seats.includes(s);
+    el.classList.toggle('empty',!on);if(!on)continue;
+    el.style.setProperty('--pc',colOf(s).fill);
+    el.querySelector('.nm').textContent=nameOf(s);
+    const home=G.tokens[s].filter(p=>p===HOME).length,r=G.ranking.indexOf(s);
+    el.querySelector('.sub').innerHTML=r>=0?'<span class="rank">'+ordinal(r)+' helyezett</span>':home+'/4 célban';
+    const active=!G.over&&cur()===s;
+    el.classList.toggle('active',active);
+    const die=el.querySelector('.die');
+    if(!die.classList.contains('rolling'))setFace(die,G.lastDice[s]||0);
+    die.disabled=s!==0;
+    die.classList.toggle('ready',active&&s===0&&G.phase==='roll');
+  }
+}
+
+/* ---------- Rules ---------- */
+function legal(s,d){
+  const out=[];
+  G.tokens[s].forEach((p,k)=>{if(p===HOME)return;if(p<0){if(d===6)out.push(k)}else if(p+d<=HOME)out.push(k)});
+  return out;
+}
+function opponentsAt(s,g){
+  const v=[];
+  for(const o of G.seats)if(o!==s)G.tokens[o].forEach((p,k)=>{if(p>=0&&p<=LAST_MAIN&&glob(o,p)===g)v.push([o,k])});
+  return v;
+}
+function threat(s,g){ // opponent tokens that could land on global square g next roll
+  if(SAFE.has(g))return 0;let n=0;
+  for(const o of G.seats)if(o!==s)for(const p of G.tokens[o]){
+    if(p<0||p>LAST_MAIN)continue;const d=(g-glob(o,p)+52)%52;
+    if(d>=1&&d<=6&&p+d<=LAST_MAIN)n++;
+  }
+  return n;
+}
+function scoreMove(s,k,d){
+  const p=G.tokens[s][k],np=p<0?0:p+d;let sc=np*.3;
+  if(p<0)sc+=55;
+  if(np===HOME)sc+=90;else if(np>LAST_MAIN&&p<=LAST_MAIN)sc+=45;
+  if(np<=LAST_MAIN){
+    const g=glob(s,np),vic=SAFE.has(g)?[]:opponentsAt(s,g);
+    if(vic.length)sc+=100+vic.reduce((a,[o,kk])=>a+G.tokens[o][kk]*.8,0);
+    if(SAFE.has(g))sc+=22;
+    sc-=threat(s,g)*38;
+  }
+  if(p>=0&&p<=LAST_MAIN)sc+=threat(s,glob(s,p))*30*(.5+p/LAST_MAIN);
+  return sc;
+}
+function aiPick(s,d,moves){
+  if(G.level==='casual'&&Math.random()<.45)return moves[Math.floor(Math.random()*moves.length)];
+  let best=moves[0],bs=-1e9;
+  for(const k of moves){const sc=scoreMove(s,k,d)+Math.random()*2;if(sc>bs){bs=sc;best=k}}
+  return best;
+}
+
+/* ---------- Turn flow ---------- */
+function startTurn(){
+  if(!G||G.over)return;
+  G.phase='roll';G.moves=[];save();renderSeats();
+  const s=cur();
+  if(isAI(s)){status(subj(s)+' dob…');schedule(doRoll,REDUCED?250:650)}
+  else{sfx.turn();status(G.sixes?'Hatost dobtál. Dobj újra!':'Te jössz. Koppints a kockádra.')}
+}
+function nextTurn(){
+  if(G.over)return;
+  G.sixes=0;
+  do{G.turn=(G.turn+1)%G.seats.length}while(done(cur()));
+  startTurn();
+}
+async function doRoll(){
+  if(!G||G.over||G.phase!=='roll')return;
+  const s=cur(),die=seatEls[s].querySelector('.die');
+  G.phase='rolling';renderSeats();
+  die.classList.add('rolling');
+  const v=1+Math.floor(Math.random()*6);
+  const spins=REDUCED?1:6;
+  sfx.rattle(spins*70);
+  for(let i=0;i<spins;i++){setFace(die,1+Math.floor(Math.random()*6));await new Promise(r=>setTimeout(r,70))}
+  die.classList.remove('rolling');
+  G.dice=v;G.lastDice[s]=v;setFace(die,v);sfx.land(v);
+  if(s===0)buzz(20);
+  renderSeats();
+  const me=s===0,rolled=(me?'Dobásod: ':subj(s)+' dobása: ')+v;
+  if(v===6&&++G.sixes===3){status(me?'Három hatost dobtál, a köröd véget ért.':subj(s)+' három hatost dobott, a köre véget ért.');sfx.nomove();G.phase='wait';schedule(nextTurn,1100);return}
+  const moves=legal(s,v);
+  if(!moves.length){
+    status(rolled+(v===6?'. Nincs lépés, '+(me?'dobj újra.':'újra dob.'):'. Nincs lépés.'));
+    sfx.nomove();G.phase='wait';schedule(v===6?startTurn:nextTurn,950);return;
+  }
+  G.phase='move';G.moves=moves;renderSeats();
+  if(isAI(s)){status(rolled+'.');schedule(()=>doMove(s,aiPick(s,v,moves)),REDUCED?200:500)}
+  else{
+    const same=moves.every(k=>G.tokens[0][k]===G.tokens[0][moves[0]]);
+    if(same){status(rolled+'.');setTimeout(()=>doMove(0,moves[0]),350)}
+    else status(rolled+'. Koppints egy villogó bábura.');
+  }
+}
+async function doMove(s,k){
+  if(!G||G.phase!=='move'||cur()!==s||!G.moves.includes(k))return;
+  G.phase='anim';renderSeats();
+  const from=G.tokens[s][k],to=from<0?0:from+G.dice,key=s*4+k;
+  if(from<0){
+    sfx.out();const a=cellOf(s,-1,k),b=cellOf(s,0,k);
+    await tween(STEP*2,t=>{anim[key]={x:a[0]+(b[0]-a[0])*t,y:a[1]+(b[1]-a[1])*t,lift:Math.sin(t*Math.PI)*.5}});
+  }else{
+    for(let p=from+1;p<=to;p++){
+      const a=cellOf(s,p-1,k),b=cellOf(s,p,k);
+      await tween(STEP,t=>{anim[key]={x:a[0]+(b[0]-a[0])*t,y:a[1]+(b[1]-a[1])*t,lift:Math.sin(t*Math.PI)*.35}});
+      sfx.step(p-from-1);
+    }
+  }
+  G.tokens[s][k]=to;delete anim[key];
+  let bonus=G.dice===6,msg='';
+  if(to<=LAST_MAIN&&!SAFE.has(glob(s,to))){
+    const vic=opponentsAt(s,glob(s,to));
+    if(vic.length){
+      bonus=true;const hitMe=vic.some(([o])=>o===0);(hitMe&&s!==0?sfx.hurt:sfx.capture)();buzz(s===0?[30,40,60]:vic.some(([o])=>o===0)?120:0);
+      const names=[...new Set(vic.filter(([o])=>o!==0).map(([o])=>PALETTE[G.colors[o]].acc))];
+      msg=s===0?'Leütötted '+names.join(' és ')+'!'
+        :subj(s)+(hitMe?' leütött téged'+(names.length?' és '+names.join(' és '):''):' leütötte '+names.join(' és '))+'!';
+      await Promise.all(vic.map(([o,kk])=>{
+        const kkey=o*4+kk,a=cellOf(o,G.tokens[o][kk],kk),b=cellOf(o,-1,kk);
+        return tween(REDUCED?120:420,t=>{const e=1-Math.pow(1-t,3);anim[kkey]={x:a[0]+(b[0]-a[0])*e,y:a[1]+(b[1]-a[1])*e,lift:Math.sin(t*Math.PI)*.9}})
+          .then(()=>{G.tokens[o][kk]=-1;delete anim[kkey]});
+      }));
+    }
+  }
+  if(to<=LAST_MAIN&&SAFE.has(glob(s,to)))sfx.safe();
+  if(to===HOME){bonus=true;sfx.home();msg=s===0?'Egy bábud célba ért!':subj(s)+' egyik bábuja célba ért!'}
+  if(msg)status(msg);
+  if(done(s)&&!G.ranking.includes(s))G.ranking.push(s);
+  renderSeats();
+  if(checkOver())return;
+  if(done(s)){schedule(nextTurn,600);return}
+  if(bonus){if(G.dice!==6)G.sixes=0;schedule(startTurn,msg?700:250)}
+  else schedule(nextTurn,250);
+}
+function checkOver(){
+  const left=G.seats.filter(s=>!done(s));
+  if(!done(0)&&left.length>1)return false;
+  const prog=s=>G.tokens[s].reduce((a,p)=>a+Math.max(p,-1)+1,0);
+  left.sort((a,b)=>prog(b)-prog(a)).forEach(s=>{if(!G.ranking.includes(s))G.ranking.push(s)});
+  G.over=true;G.phase='over';clearSave();renderSeats();
+  const place=G.ranking.indexOf(0);
+  if(place===0){sfx.win();buzz([60,60,120])}else sfx.lose();
+  $('#endTitle').innerHTML=place===0?'<span>Nyertél!</span>':'A <span>'+ordinal(place)+'</span> helyen végeztél';
+  $('#ranks').innerHTML=G.ranking.map((s,i)=>'<li><b>'+ordinal(i)+'</b><i style="--c:'+colOf(s).fill+'"></i>'+nameOf(s)+'</li>').join('');
+  status(place===0?'Megnyerted a játékot!':'Vége a játéknak.');
+  setTimeout(()=>{$('#endScreen').hidden=false},900);
+  return true;
+}
+
+/* ---------- Game setup, save, menu ---------- */
+function newGame(){
+  const ci=ORDER.indexOf(settings.color);
+  G={colors:[0,1,2,3].map(i=>ORDER[(ci+i)%4]),seats:settings.players===2?[0,2]:[0,1,2,3],level:settings.level,
+     tokens:[0,1,2,3].map(()=>[-1,-1,-1,-1]),turn:0,dice:0,sixes:0,phase:'roll',moves:[],ranking:[],lastDice:[0,0,0,0],over:false};
+  begin();
+}
+function loadGame(d){
+  G={...d,dice:0,phase:'roll',moves:[],over:false};
+  begin();
+}
+function begin(){
+  for(const k in anim)delete anim[k];
+  pending=[];buildBoard();closeMenu();$('#endScreen').hidden=true;startTurn();
+}
+function serial(){return G&&!G.over?{colors:G.colors,seats:G.seats,level:G.level,tokens:G.tokens,turn:G.turn,sixes:G.sixes,ranking:G.ranking,lastDice:G.lastDice}:null}
+function save(){try{const d=serial();d&&localStorage.setItem(SAVE_KEY,JSON.stringify({game:d,settings}))}catch(e){}}
+function clearSave(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}}
+function readSave(){try{return JSON.parse(localStorage.getItem(SAVE_KEY)||'null')}catch(e){return null}}
+
+const menu=$('#menu'),form=$('#menuForm');
+function syncForm(){
+  form.querySelector('#pl'+settings.players).checked=true;
+  form.querySelector(settings.level==='casual'?'#lvCasual':'#lvSharp').checked=true;
+  form.querySelector('input[name=color][value='+settings.color+']').checked=true;
+}
+function openMenu(){
+  paused=true;syncForm();
+  const saved=!G&&readSave();
+  const btn=$('#resumeBtn');
+  btn.hidden=!((G&&!G.over)||(saved&&saved.game));
+  btn.textContent=G?'Játék folytatása':'Mentett játék folytatása';
+  menu.hidden=false;
+}
+function closeMenu(){
+  menu.hidden=true;paused=false;
+  const p=pending;pending=[];p.forEach(fn=>fn());
+}
+form.addEventListener('submit',e=>{
+  e.preventDefault();unlockAudio();sfx.tap();
+  const f=new FormData(form);
+  settings={players:+f.get('players'),level:f.get('level'),color:f.get('color')};
+  newGame();
+});
+$('#resumeBtn').addEventListener('click',()=>{
+  unlockAudio();
+  if(G&&!G.over){closeMenu();return}
+  const s=readSave();if(s&&s.game){if(s.settings)settings=s.settings;loadGame(s.game)}
+});
+$('#menuBtn').addEventListener('click',()=>{unlockAudio();sfx.tap();openMenu()});
+$('#againBtn').addEventListener('click',()=>{unlockAudio();sfx.tap();newGame()});
+$('#toMenuBtn').addEventListener('click',()=>{$('#endScreen').hidden=true;G=null;buildBoard();renderSeats();status('');openMenu()});
+const soundBtn=$('#soundBtn');
+function showSound(){soundBtn.textContent=soundOn?'Hang be':'Hang ki';soundBtn.setAttribute('aria-pressed',soundOn)}
+try{soundOn=localStorage.getItem('ludo-sound')!=='off'}catch(e){}
+showSound();
+soundBtn.addEventListener('click',()=>{soundOn=!soundOn;unlockAudio();showSound();sfx.tap();try{localStorage.setItem('ludo-sound',soundOn?'on':'off')}catch(e){}});
+
+canvas.addEventListener('pointerdown',e=>{
+  unlockAudio();
+  if(!G||G.phase!=='move'||cur()!==0)return;
+  const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*15,y=(e.clientY-r.top)/r.height*15;
+  let best=null,bd=1.1;
+  for(const k of G.moves){const pp=lastPos[k];if(!pp)continue;const d=Math.hypot(pp[0]-x,pp[1]-y);if(d<bd){bd=d;best=k}}
+  if(best!==null)doMove(0,best);
+});
+window.addEventListener('resize',()=>{layout();renderSeats()});
+document.addEventListener('pointerdown',unlockAudio,{once:true});
+
+window.claude?.hot?.snapshot?.(()=>({game:serial(),settings}));
+function start(data){
+  data=data||{};
+  if(data.settings)settings=data.settings;
+  layout();renderSeats();requestAnimationFrame(render);
+  if(data.game)loadGame(data.game);
+  else{const s=readSave();if(s&&s.settings)settings=s.settings;openMenu();status('')}
+}
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+})();
+</script>
