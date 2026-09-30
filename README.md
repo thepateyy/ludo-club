@@ -12,6 +12,17 @@ A Ludo board game for phones. You play against one or three computer opponents. 
 sh build.sh
 ```
 
+## Opponents
+
+Each computer player is a character with a portrait, a play style and speech-bubble reactions (captures, getting captured, tokens home, rolling a 6):
+
+- **Bence** (agresszív) goes for captures and takes risks.
+- **Anna** (óvatos) keeps her tokens safe and prefers star squares.
+- **Dóri** (kaotikus) often makes random moves.
+- **Matyi** (macskakirály) is a grey tabby cat with a crown. He meows and asks for food. Tap him to feed him: a fed Matyi purrs and plays lazily for a few of his turns, while a hungry Matyi pounces like the aggressive style.
+
+Opponents are picked at random each game. Your first game after this update always includes Matyi.
+
 ## Levels, coins and the shop
 
 The level cap is 100. You earn XP for bringing tokens out (+3), capturing (+15 each), getting a token home (+20), and your final place (1st place is +120 against 3 opponents or +80 against 1). Each level needs 25 XP more than the one before, up to 1,000 XP per level from level 37 onwards, so level 100 takes about 82,000 XP.
