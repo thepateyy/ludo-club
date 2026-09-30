@@ -12,11 +12,18 @@ A Ludo board game for phones. You play against one or three computer opponents. 
 sh build.sh
 ```
 
-## Levels and rewards
+## Levels, coins and the shop
 
-You earn XP for bringing tokens out (+3), capturing (+15 each), getting a token home (+20), and your final place (1st place is +120 against 3 opponents or +80 against 1). Against the "Ügyes" (sharp) computer, the place bonus is multiplied by 1.5.
+The level cap is 100. You earn XP for bringing tokens out (+3), capturing (+15 each), getting a token home (+20), and your final place (1st place is +120 against 3 opponents or +80 against 1). Each level needs 25 XP more than the one before, up to 1,000 XP per level from level 37 onwards, so level 100 takes about 82,000 XP.
 
-Every level from 2 to 20 unlocks a token design, dice skin or table colour. Levels 5, 10, 15 and 20 also give a new title. You can pick what to use in the menu under "Gyűjtemény". Progress is saved in the browser on your device.
+You earn coins for capturing (+5 each), getting a token home (+5), your final place (1st place is +100 against 3 opponents or +60 against 1), and every level-up (20 + 5 × the new level). Against the "Ügyes" (sharp) computer, place XP and place coins are multiplied by 1.5.
+
+Cosmetics (token designs, dice skins and table colours) come two ways:
+
+- **Level rewards:** one item at every level from 2 to 20, then one every 5 levels up to 100. Titles come at levels 5, 10 and 15, then every 10 levels.
+- **Shop items:** bought with coins in the menu under "Bolt", for 250 to 2,000 coins.
+
+Progress is saved in the browser on your device.
 
 ## Rules
 
