@@ -27,6 +27,11 @@ import java.net.URL;
 @CapacitorPlugin(name = "AppUpdater")
 public class AppUpdaterPlugin extends Plugin {
 
+    /** Updates are only ever downloaded from this repo's GitHub releases. */
+    private static final String RELEASE_PREFIX = "https://github.com/thepateyy/ludo-club/releases/download/";
+    /** A real APK is about 2 MB; anything far bigger is refused so a bad response can't fill the phone's storage. */
+    private static final long MAX_APK_BYTES = 100L * 1024 * 1024;
+
     @PluginMethod
     public void getVersion(PluginCall call) {
         try {
@@ -43,8 +48,8 @@ public class AppUpdaterPlugin extends Plugin {
     @PluginMethod
     public void downloadAndInstall(PluginCall call) {
         String url = call.getString("url");
-        if (url == null || !url.startsWith("https://")) {
-            call.reject("An https download URL is required");
+        if (url == null || !url.startsWith(RELEASE_PREFIX) || !url.endsWith(".apk") || url.contains("..")) {
+            call.reject("Only APKs from this game's GitHub releases can be downloaded");
             return;
         }
         new Thread(() -> {
@@ -53,6 +58,7 @@ public class AppUpdaterPlugin extends Plugin {
             HttpURLConnection conn = null;
             try {
                 if (!dir.exists() && !dir.mkdirs()) throw new IOException("Could not create " + dir);
+                if (apk.exists() && !apk.delete()) throw new IOException("Could not replace the old download");
                 conn = (HttpURLConnection) new URL(url).openConnection();
                 conn.setInstanceFollowRedirects(true); // GitHub release assets redirect to a download host
                 conn.setConnectTimeout(15000);
@@ -60,13 +66,15 @@ public class AppUpdaterPlugin extends Plugin {
                 conn.connect();
                 if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) throw new IOException("HTTP " + conn.getResponseCode());
                 long total = conn.getContentLengthLong();
+                if (total > MAX_APK_BYTES) throw new IOException("Update is too large");
                 try (InputStream in = new BufferedInputStream(conn.getInputStream()); OutputStream out = new FileOutputStream(apk)) {
                     byte[] buf = new byte[64 * 1024];
                     long done = 0;
                     int n, lastPercent = -1;
                     while ((n = in.read(buf)) != -1) {
-                        out.write(buf, 0, n);
                         done += n;
+                        if (done > MAX_APK_BYTES) throw new IOException("Update is too large");
+                        out.write(buf, 0, n);
                         if (total > 0) {
                             int percent = (int) (done * 100 / total);
                             if (percent != lastPercent) {

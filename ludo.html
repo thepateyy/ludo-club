@@ -408,9 +408,19 @@ const XP_PLACE={4:[120,60,40,25],2:[80,25]};
 const COIN_PLACE={4:[100,50,30,15],2:[60,15]};
 const levelCoins=l=>20+l*5;
 let profile={xp:0,coins:null,games:0,wins:0,pending:[],owned:[],equip:{token:'classic',dice:'ivory',table:'teal'}};
+// Stored data can be stale, corrupted or edited by hand: keep only well-formed values
+const count=(v,max=1e9)=>Number.isFinite(v)&&v>=0?Math.min(Math.floor(v),max):0;
+function sanitizeProfile(){
+  profile.xp=count(profile.xp);profile.games=count(profile.games);profile.wins=count(profile.wins);profile.fed=count(profile.fed);
+  if(profile.coins!=null)profile.coins=count(profile.coins);
+  profile.pending=[...new Set((Array.isArray(profile.pending)?profile.pending:[]).filter(l=>Number.isInteger(l)&&l>=2&&l<=MAX_LEVEL))];
+  profile.owned=(Array.isArray(profile.owned)?profile.owned:[]).filter(k=>typeof k==='string'&&/^(token|dice|table):[a-z]+$/.test(k));
+  if(!profile.equip||typeof profile.equip!=='object')profile.equip={token:'classic',dice:'ivory',table:'teal'};
+  profile.metMatyi=!!profile.metMatyi;
+}
 function loadProfile(){
   try{const p=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');if(p)profile={...profile,...p,equip:{...profile.equip,...(p.equip||{})}}}catch(e){}
-  if(!Array.isArray(profile.owned))profile.owned=[];
+  sanitizeProfile();
   if(profile.coins==null){ // first run with coins: starting purse plus what earlier level-ups would have paid
     let c=100;for(let l=2;l<=myLevel();l++)c+=levelCoins(l);profile.coins=c;saveProfile();
   }
@@ -864,6 +874,9 @@ function rollDie(die,final){
 }
 const humanDie=seatEls[0].querySelector('.die');
 humanDie.addEventListener('click',()=>{unlockAudio();if(G&&!G.over&&cur()===0&&G.phase==='roll')doRoll()});
+// Writing identical text or HTML still costs a layout pass, so only write what changed
+const setText=(el,t)=>{if(el.textContent!==t)el.textContent=t};
+const setHTML=(el,h)=>{if(el._html!==h){el._html=h;el.innerHTML=h}};
 let prevActive=-1;
 function renderSeats(){
   requestRender();
@@ -871,13 +884,13 @@ function renderSeats(){
     const el=seatEls[s],on=!!G&&G.seats.includes(s);
     el.classList.toggle('empty',!on);if(!on)continue;
     el.style.setProperty('--pc',colOf(s).fill);
-    el.querySelector('.nm').textContent=nameOf(s);
+    setText(el.querySelector('.nm'),nameOf(s));
     const av=el.querySelector('.avatar'),key=s===0?'me':G.chars[s];
     if(av.dataset.key!==key){av.dataset.key=key;av.innerHTML=AVATAR[key]}
     av.classList.toggle('hungry',key==='matyi'&&!G.catFull&&!G.over);
     av.setAttribute('aria-label',key==='matyi'?'Matyi megetetése':nameOf(s));av.disabled=s===0;
     const home=G.tokens[s].filter(p=>p===HOME).length,r=G.ranking.indexOf(s);
-    el.querySelector('.sub').innerHTML=r>=0?'<span class="rank">'+ordinal(r)+' hely</span>':'Cél: '+home+'/4';
+    setHTML(el.querySelector('.sub'),r>=0?'<span class="rank">'+ordinal(r)+' hely</span>':'Cél: '+home+'/4');
     const active=!G.over&&cur()===s;
     el.classList.toggle('active',active);
     if(active&&prevActive!==s){prevActive=s;if(!REDUCED)el.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.3,1.6,.5,1)'})}
@@ -1115,8 +1128,36 @@ function newGame(){
      tokens:[0,1,2,3].map(()=>[-1,-1,-1,-1]),turn:0,dice:0,sixes:0,phase:'roll',moves:[],ranking:[],lastDice:[0,1,2,3].map(()=>1+Math.floor(Math.random()*6)),over:false,xp:{},coins:{}};
   begin();
 }
+const has=(o,k)=>typeof k==='string'&&Object.prototype.hasOwnProperty.call(o,k);
+const isInt=(v,lo,hi)=>Number.isInteger(v)&&v>=lo&&v<=hi;
+function cleanSettings(x){
+  x=x&&typeof x==='object'?x:{};
+  return{players:x.players===2?2:4,level:x.level==='casual'?'casual':'sharp',color:ORDER.includes(x.color)?x.color:'red'};
+}
+// Returns a clean copy of a saved game, or null if anything in it is malformed
+function validGame(d){
+  if(!d||typeof d!=='object')return null;
+  const seats=d.seats;
+  const okSeats=Array.isArray(seats)&&((seats.length===2&&seats[0]===0&&seats[1]===2)||(seats.length===4&&seats.every((x,i)=>x===i)));
+  if(!okSeats)return null;
+  if(!Array.isArray(d.colors)||d.colors.length!==4||new Set(d.colors).size!==4||!d.colors.every(c=>ORDER.includes(c)))return null;
+  if(!Array.isArray(d.tokens)||d.tokens.length!==4||!d.tokens.every(t=>Array.isArray(t)&&t.length===4&&t.every(p=>isInt(p,-1,HOME))))return null;
+  if(!isInt(d.turn,0,seats.length-1))return null;
+  let chars=null;
+  if(d.chars!=null){
+    if(!Array.isArray(d.chars)||d.chars.length!==4||!seats.every(x=>x===0||has(CHARACTERS,d.chars[x])))return null;
+    chars=[0,1,2,3].map(x=>x!==0&&seats.includes(x)?d.chars[x]:null);
+  }
+  const tally=o=>Object.fromEntries(Object.entries(o&&typeof o==='object'?o:{}).filter(([k,v])=>/^[a-z]+$/.test(k)&&isInt(v,0,1e6)));
+  return{colors:d.colors.slice(),seats:seats.slice(),chars,level:d.level==='casual'?'casual':'sharp',tokens:d.tokens.map(t=>t.slice()),turn:d.turn,
+    sixes:isInt(d.sixes,0,2)?d.sixes:0,ranking:[...new Set(Array.isArray(d.ranking)?d.ranking.filter(x=>seats.includes(x)):[])],
+    lastDice:Array.isArray(d.lastDice)&&d.lastDice.length===4&&d.lastDice.every(v=>isInt(v,0,6))?d.lastDice.slice():[0,0,0,0],
+    xp:tally(d.xp),coins:tally(d.coins),catFull:isInt(d.catFull,0,CAT_FULL_TURNS)?d.catFull:0};
+}
 function loadGame(d){
-  G={xp:{},coins:{},catFull:0,...d,dice:0,phase:'roll',moves:[],over:false};
+  const g=validGame(d);
+  if(!g){clearSave();G=null;openMenu();return}
+  G={...g,dice:0,phase:'roll',moves:[],over:false};
   if(!G.chars)G.chars=assignChars(G.seats);
   begin();
 }
@@ -1139,7 +1180,7 @@ function openMenu(){
   paused=true;syncForm();
   const saved=!G&&readSave();
   const btn=$('#resumeBtn');
-  btn.hidden=!((G&&!G.over)||(saved&&saved.game));
+  btn.hidden=!((G&&!G.over)||(saved&&validGame(saved.game)));
   btn.textContent=G?'Játék folytatása':'Mentett játék folytatása';
   renderXP();menu.hidden=false;
   if(profile.pending.length)setTimeout(()=>showRewards(),300);
@@ -1157,7 +1198,7 @@ form.addEventListener('submit',e=>{
 $('#resumeBtn').addEventListener('click',()=>{
   unlockAudio();
   if(G&&!G.over){closeMenu();return}
-  const s=readSave();if(s&&s.game){if(s.settings)settings=s.settings;loadGame(s.game)}
+  const s=readSave();if(s&&s.game){settings=cleanSettings(s.settings);loadGame(s.game)}
 });
 $('#menuBtn').addEventListener('click',()=>{unlockAudio();sfx.tap();openMenu()});
 $('#againBtn').addEventListener('click',()=>{unlockAudio();sfx.tap();newGame()});
@@ -1299,6 +1340,7 @@ $('#collDone').addEventListener('click',()=>{sfx.tap();$('#collection').hidden=t
 
 /* ---------- App updates (Android app only): offers newer APKs published on GitHub Releases ---------- */
 const RELEASES_URL='https://api.github.com/repos/thepateyy/ludo-club/releases/latest';
+const RELEASE_DOWNLOADS='https://github.com/thepateyy/ludo-club/releases/download/',UPDATE_CACHE_KEY='ludo-update-cache';
 // Needs Capacitor's JS runtime (capacitor.js, loaded by the app build). Never let a missing bridge break the game.
 let Updater=null;
 try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&typeof C.registerPlugin==='function')Updater=C.registerPlugin('AppUpdater')}catch(e){}
@@ -1312,9 +1354,18 @@ async function checkForUpdate(){
   if(!Updater||Date.now()-lastUpdateCheck<3*3600e3)return;
   lastUpdateCheck=Date.now();
   try{
-    const[{versionName},res]=await Promise.all([Updater.getVersion(),fetch(RELEASES_URL,{headers:{Accept:'application/vnd.github+json'}})]);
-    if(!res.ok)return;
-    const rel=await res.json(),latest=String(rel.tag_name||'').replace(/^v/,''),apk=(rel.assets||[]).find(a=>/\.apk$/i.test(a.name));
+    // Data: send the last ETag so an unchanged release answers "304 Not Modified" with no body
+    let cached=null;try{cached=JSON.parse(localStorage.getItem(UPDATE_CACHE_KEY)||'null')}catch(e){}
+    const headers={Accept:'application/vnd.github+json'};if(cached&&cached.etag&&cached.rel)headers['If-None-Match']=cached.etag;
+    const[{versionName},res]=await Promise.all([Updater.getVersion(),fetch(RELEASES_URL,{headers,cache:'no-store'})]);
+    let rel;
+    if(res.status===304&&cached&&cached.rel)rel=cached.rel;
+    else if(res.ok){
+      const full=await res.json();
+      rel={tag_name:String(full.tag_name||''),body:String(full.body||''),assets:(full.assets||[]).map(a=>({name:String(a.name),size:Number(a.size)||0,browser_download_url:String(a.browser_download_url)}))};
+      try{localStorage.setItem(UPDATE_CACHE_KEY,JSON.stringify({etag:res.headers.get('ETag'),rel}))}catch(e){}
+    }else return;
+    const latest=rel.tag_name.replace(/^v/,''),apk=rel.assets.find(a=>/\.apk$/i.test(a.name)&&a.browser_download_url.startsWith(RELEASE_DOWNLOADS));
     if(!apk||!/^\d+(\.\d+)*$/.test(latest)||!isNewer(latest,versionName))return;
     updateInfo={latest,current:versionName,url:apk.browser_download_url,size:apk.size,notes:String(rel.body||'').trim()};
     showUpdate();
@@ -1372,12 +1423,12 @@ document.addEventListener('pointerdown',unlockAudio,{once:true});
 window.claude?.hot?.snapshot?.(()=>({game:serial(),settings}));
 function start(data){
   data=data||{};
-  if(data.settings)settings=data.settings;
+  if(data.settings)settings=cleanSettings(data.settings);
   loadProfile();applyCosmetics();renderXP();
   $('#roster').innerHTML=Object.entries(CHARACTERS).map(([k,c])=>'<div class="rc"><span class="mini-av big">'+AVATAR[k]+'</span><b>'+c.name+'</b><small>'+c.label+'</small></div>').join('');
   layout();renderSeats();requestRender();
   if(data.game)loadGame(data.game);
-  else{const s=readSave();if(s&&s.settings)settings=s.settings;openMenu();status('')}
+  else{const s=readSave();if(s&&s.settings)settings=cleanSettings(s.settings);openMenu();status('')}
   if(Updater)Updater.getVersion().then(v=>{$('#appVersion').textContent='Verzió: '+v.versionName;$('#appVersion').hidden=false}).catch(()=>{});
   checkForUpdate();
 }

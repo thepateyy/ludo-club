@@ -29,7 +29,9 @@ The signed APK is written to `android/app/build/outputs/apk/release/app-release.
 
 Release builds are signed with the key described in `android/keystore.properties`. That file and the keystore are never committed. Keep a backup of both: Android only installs an update over the existing app when it is signed with the same key.
 
-To change the app icon, edit the images in `assets/` and run `npx @capacitor/assets generate --android`.
+To change the app icon, edit the images in `assets/` and run `npx @capacitor/assets generate --android`. The tool isn't a project dependency (its bundled libraries have known vulnerabilities), so `npx` fetches it only for that one run.
+
+Release builds are shrunk with R8 (`minifyEnabled` and `shrinkResources`), which takes the APK from about 4.4 MB to 1.3 MB. `android/app/proguard-rules.pro` keeps the app's own classes, because Capacitor finds plugins and their methods by name at runtime.
 
 ### Publishing updates
 
