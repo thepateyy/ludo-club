@@ -206,6 +206,7 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
 #update{z-index:8}
 .unotes{white-space:pre-line;max-height:9em;overflow:auto;padding:10px 12px;border-radius:12px;background:var(--sand);font-size:13.5px}
 .xptrack.light{background:var(--sand)}
+.app-version{font-size:12px;text-align:center;color:#8a9499}
 .xptrack.light i{transition:width .2s linear}
 @media (prefers-reduced-motion:reduce){.die.ready,.die.rolling,.reward-show::before,.avatar.hungry{animation:none}}
 </style>
@@ -264,6 +265,7 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
       <button class="btn alt" type="button" id="collBtn">Bolt</button>
     </div>
     <p class="rules">Hatossal hozhatsz ki bábut a házból. Hatos, ütés vagy célba érés után újra dobhatsz. Három hatos egymás után elveszi a köröd. A csillagos mezőkön nem lehet ütni. Ha Matyi éhes, koppints rá, és etesd meg: jóllakva lustábban játszik.</p>
+    <p class="app-version" id="appVersion" hidden></p>
   </form>
 </div>
 
@@ -1218,6 +1220,7 @@ function start(data){
   layout();renderSeats();requestAnimationFrame(render);
   if(data.game)loadGame(data.game);
   else{const s=readSave();if(s&&s.settings)settings=s.settings;openMenu();status('')}
+  if(Updater)Updater.getVersion().then(v=>{$('#appVersion').textContent='Verzió: '+v.versionName;$('#appVersion').hidden=false}).catch(()=>{});
   checkForUpdate();
 }
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
