@@ -52,7 +52,7 @@ Each computer player is a character with a portrait, a play style and speech-bub
 - **Bence** (agresszív) goes for captures and takes risks.
 - **Anna** (óvatos) keeps her tokens safe and prefers star squares.
 - **Dóri** (kaotikus) often makes random moves.
-- **Matyi** (macskakirály) is a grey tabby cat with a crown. He meows and asks for food. Tap him to feed him: a fed Matyi purrs and plays lazily for a few of his turns, while a hungry Matyi pounces like the aggressive style.
+- **Matyi** (macskakirály) is a grey tabby cat with a crown. He asks for food in his speech bubbles. Tap him to feed him: a fed Matyi purrs and plays lazily for a few of his turns, while a hungry Matyi pounces like the aggressive style.
 
 Opponents are picked at random each game. Your first game after this update always includes Matyi.
 
