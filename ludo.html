@@ -1154,7 +1154,9 @@ $('#collDone').addEventListener('click',()=>{sfx.tap();$('#collection').hidden=t
 
 /* ---------- App updates (Android app only): offers newer APKs published on GitHub Releases ---------- */
 const RELEASES_URL='https://api.github.com/repos/thepateyy/ludo-club/releases/latest';
-const Updater=window.Capacitor?.isNativePlatform?.()?window.Capacitor.registerPlugin('AppUpdater'):null;
+// Needs Capacitor's JS runtime (capacitor.js, loaded by the app build). Never let a missing bridge break the game.
+let Updater=null;
+try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&typeof C.registerPlugin==='function')Updater=C.registerPlugin('AppUpdater')}catch(e){}
 let updateInfo=null,lastUpdateCheck=0;
 function isNewer(a,b){
   const pa=a.split('.').map(Number),pb=b.split('.').map(Number);

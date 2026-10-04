@@ -7,6 +7,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg">
 <style>:root{padding-top:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px));padding-bottom:max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px))}[hidden]{display:none!important}</style>
+<script src="capacitor.js"></script>
 </head>
 <body>
 <title>Ki nevet a végén?</title>
@@ -1163,7 +1164,9 @@ $('#collDone').addEventListener('click',()=>{sfx.tap();$('#collection').hidden=t
 
 /* ---------- App updates (Android app only): offers newer APKs published on GitHub Releases ---------- */
 const RELEASES_URL='https://api.github.com/repos/thepateyy/ludo-club/releases/latest';
-const Updater=window.Capacitor?.isNativePlatform?.()?window.Capacitor.registerPlugin('AppUpdater'):null;
+// Needs Capacitor's JS runtime (capacitor.js, loaded by the app build). Never let a missing bridge break the game.
+let Updater=null;
+try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()&&typeof C.registerPlugin==='function')Updater=C.registerPlugin('AppUpdater')}catch(e){}
 let updateInfo=null,lastUpdateCheck=0;
 function isNewer(a,b){
   const pa=a.split('.').map(Number),pb=b.split('.').map(Number);
