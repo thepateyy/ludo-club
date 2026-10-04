@@ -1,0 +1,15 @@
+{
+  "appId": "com.thepateyy.kinevet",
+  "appName": "Ki nevet a végén?",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#1c3b46"
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "initialViewportFitValueHint": "cover",
+      "style": "DARK"
+    }
+  }
+}

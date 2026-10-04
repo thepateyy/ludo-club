@@ -12,6 +12,25 @@ A Ludo board game for phones. You play against one or three computer opponents. 
 sh build.sh
 ```
 
+## Android app
+
+The `android/` folder is a Capacitor project that packages `www/` as an Android app (`com.thepateyy.kinevet`). Fonts are bundled in `www/fonts`, so the app works offline.
+
+Building needs the Android SDK and a Java runtime, for example from Android Studio:
+
+```bash
+npm install
+npm run sync
+cd android
+JAVA_HOME="/c/Program Files/Android/Android Studio/jbr" ./gradlew assembleRelease
+```
+
+The signed APK is written to `android/app/build/outputs/apk/release/app-release.apk`.
+
+Release builds are signed with the key described in `android/keystore.properties`. That file and the keystore are never committed. Keep a backup of both: Android only installs an update over the existing app when it is signed with the same key.
+
+To change the app icon, edit the images in `assets/` and run `npx @capacitor/assets generate --android`.
+
 ## Opponents
 
 Each computer player is a character with a portrait, a play style and speech-bubble reactions (captures, getting captured, tokens home, rolling a 6):

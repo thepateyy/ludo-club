@@ -1,0 +1,3 @@
+# Shell scripts must keep Unix line endings to run on Linux (e.g. CI builds)
+*.sh text eol=lf
+android/gradlew text eol=lf

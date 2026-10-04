@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Ki nevet a végén?</string>
+    <string name="title_activity_main">Ki nevet a végén?</string>
+    <string name="package_name">com.thepateyy.kinevet</string>
+    <string name="custom_url_scheme">com.thepateyy.kinevet</string>
+</resources>
