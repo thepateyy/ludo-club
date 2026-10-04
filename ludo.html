@@ -492,7 +492,6 @@ const ordinal=n=>(n+1)+'.';
 function status(t){statusEl.textContent=t}
 function schedule(fn,ms){setTimeout(()=>{paused?pending.push(fn):fn()},ms)}
 function tween(ms,f){return new Promise(res=>{const t0=performance.now();const fr=now=>{const t=Math.min(1,(now-t0)/ms);f(t);requestRender();t<1?requestAnimationFrame(fr):res()};requestAnimationFrame(fr)})}
-function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
 
 /* ---------- Sound: small synth through a warm room reverb. Starts after the first tap. ---------- */
 let bus=null;
@@ -573,17 +572,40 @@ const sfx={
   xp(){play(()=>{mallet(1318.5,0,.05,.25,.3);mallet(1975.5,.06,.04,.35,.3)})},
   levelup(){play(()=>{[783.99,987.77,1174.66,1567.98].forEach((f,i)=>mallet(f,i*.07,.1,.5,.5));[2349.3,3136].forEach((f,i)=>mallet(f,.3+i*.08,.04,.8,.6))})},
   chirp(f){play(()=>{voice({f,to:f*1.3,d:.07,vol:.07,type:'triangle',rev:.2});voice({f:f*1.2,to:f*1.05,at:.09,d:.09,vol:.06,type:'triangle',rev:.2})})},
-  // Synth meow: a sawtooth voice through two moving formant filters ("m-i-a-u")
+  // Synth meow modelled on real cats: two detuned voices with a rise-and-fall pitch, a closed "m" that
+  // opens up, three formants gliding i -> a -> u ("mi-a-u"), a breathy layer and a little vibrato.
   meow(){play(()=>{
-    const T=AC.currentTime,d=.6+Math.random()*.15,k=.9+Math.random()*.25,o=AC.createOscillator(),f1=AC.createBiquadFilter(),f2=AC.createBiquadFilter(),g=AC.createGain(),lfo=AC.createOscillator(),lg=AC.createGain();
-    o.type='sawtooth';o.frequency.setValueAtTime(520*k,T);o.frequency.linearRampToValueAtTime(780*k,T+.18);o.frequency.linearRampToValueAtTime(640*k,T+.4);o.frequency.linearRampToValueAtTime(430*k,T+d);
-    f1.type=f2.type='bandpass';f1.Q.value=5;f2.Q.value=7;
-    f1.frequency.setValueAtTime(500,T);f1.frequency.linearRampToValueAtTime(950,T+.2);f1.frequency.linearRampToValueAtTime(420,T+d);
-    f2.frequency.setValueAtTime(2300,T);f2.frequency.linearRampToValueAtTime(1500,T+.22);f2.frequency.linearRampToValueAtTime(800,T+d);
-    g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(.9,T+.06);g.gain.setValueAtTime(.9,T+d*.6);g.gain.exponentialRampToValueAtTime(.0001,T+d);
-    lfo.frequency.value=6;lg.gain.value=14;lfo.connect(lg).connect(o.frequency);
-    o.connect(f1);o.connect(f2);f1.connect(g);f2.connect(g);send(g,.25);
-    o.start(T);o.stop(T+d+.05);lfo.start(T);lfo.stop(T+d+.05);
+    const T=AC.currentTime,d=.7+Math.random()*.2,k=.9+Math.random()*.2;
+    const voices=[AC.createOscillator(),AC.createOscillator()],mix=AC.createGain();
+    voices[1].detune.value=12;mix.gain.value=.5;
+    const pitch=[[.12,640],[.32,760],[.62,690],[1,410]];
+    for(const o of voices){
+      o.type='sawtooth';o.frequency.setValueAtTime(440*k,T);
+      for(const[at,hz]of pitch)o.frequency.linearRampToValueAtTime(hz*k,T+at*d);
+      o.connect(mix);
+    }
+    const lfo=AC.createOscillator(),depth=AC.createGain();lfo.frequency.value=5.5;depth.gain.value=9;lfo.connect(depth);
+    for(const o of voices)depth.connect(o.frequency);
+    const lips=AC.createBiquadFilter();lips.type='lowpass';lips.Q.value=.7; // "m": closed mouth opening, then closing on "u"
+    lips.frequency.setValueAtTime(450,T);lips.frequency.exponentialRampToValueAtTime(5200,T+d*.18);
+    lips.frequency.setValueAtTime(5200,T+d*.7);lips.frequency.exponentialRampToValueAtTime(1100,T+d);
+    mix.connect(lips);
+    const out=AC.createGain();
+    const vowels=[[0,[400,2300,3100]],[.25,[800,1800,2900]],[.55,[950,1450,2700]],[1,[450,850,2500]]]; // i -> a -> u
+    [[1,5],[.7,8],[.35,10]].forEach(([gain,q],i)=>{
+      const bp=AC.createBiquadFilter(),g=AC.createGain();bp.type='bandpass';bp.Q.value=q;g.gain.value=gain*1.6;
+      bp.frequency.setValueAtTime(vowels[0][1][i],T);
+      for(const[at,f]of vowels.slice(1))bp.frequency.linearRampToValueAtTime(f[i],T+at*d);
+      lips.connect(bp).connect(g).connect(out);
+    });
+    const breath=AC.createBufferSource(),hp=AC.createBiquadFilter(),bg=AC.createGain();
+    breath.buffer=bus.noise;hp.type='highpass';hp.frequency.value=2500;bg.gain.value=.05;breath.connect(hp).connect(bg).connect(out);
+    out.gain.setValueAtTime(.0001,T);out.gain.exponentialRampToValueAtTime(.8,T+.07);
+    out.gain.setValueAtTime(.8,T+d*.65);out.gain.exponentialRampToValueAtTime(.0001,T+d);
+    send(out,.25);
+    const end=T+d+.05;
+    for(const o of voices){o.start(T);o.stop(end)}
+    lfo.start(T);lfo.stop(end);breath.start(T,Math.random()*.2);breath.stop(end);
   })},
   // Purr: low filtered noise pulsing about 24 times a second
   purr(){play(()=>{
@@ -860,7 +882,7 @@ function renderSeats(){
     el.classList.toggle('active',active);
     if(active&&prevActive!==s){prevActive=s;if(!REDUCED)el.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.3,1.6,.5,1)'})}
     const die=el.querySelector('.die');
-    if(!die.classList.contains('rolling'))setFace(die,G.lastDice[s]||0);
+    if(!die.classList.contains('rolling'))setFace(die,G.lastDice[s]||[5,3,6,4][s]);
     die.disabled=s!==0;
     die.classList.toggle('ready',active&&s===0&&G.phase==='roll');
   }
@@ -897,7 +919,7 @@ function onAvatar(s){
   if(G.chars[s]!=='matyi'){say(s,pick(ch.lines.poke));return}
   if(G.catFull>0){say(s,pick(ch.lines.full),true);sfx.purr();return}
   G.catFull=CAT_FULL_TURNS;profile.fed=(profile.fed||0)+1;saveProfile();save();
-  say(s,pick(ch.lines.fed),true);sfx.purr();buzz([15,30,15,30,15]);hearts(seatEls[s]);renderSeats();
+  say(s,pick(ch.lines.fed),true);sfx.purr();hearts(seatEls[s]);renderSeats();
 }
 seatEls.forEach((el,s)=>el.querySelector('.avatar').addEventListener('click',()=>onAvatar(s)));
 // Matyi gets hungry again after a few of his turns, then asks for food
@@ -977,7 +999,6 @@ async function doRoll(){
   if(!REDUCED)die.animate([{transform:'scale(1.1)'},{transform:'scale(.97)',offset:.6},{transform:'scale(1)'}],{duration:260,easing:'ease-out'});
   if(v===6)domSparkle(die,['#ffd54a','#fff3b0','#ffffff',colOf(s).fill],18);
   if(isAI(s)&&v===6)react(s,'six',.3,250);
-  if(s===0)buzz(20);
   renderSeats();
   const me=s===0,rolled=(me?'Dobásod: ':subj(s)+' dobása: ')+v;
   if(v===6&&++G.sixes===3){status(me?'Három hatost dobtál, a köröd véget ért.':subj(s)+' három hatost dobott, a köre véget ért.');sfx.nomove();G.phase='wait';schedule(nextTurn,1100);return}
@@ -1020,7 +1041,7 @@ async function doMove(s,k){
   if(to<=LAST_MAIN&&!SAFE.has(glob(s,to))){
     const vic=opponentsAt(s,glob(s,to));
     if(vic.length){
-      bonus=true;const hitMe=vic.some(([o])=>o===0);(hitMe&&s!==0?sfx.hurt:sfx.capture)();buzz(s===0?[30,40,60]:vic.some(([o])=>o===0)?120:0);
+      bonus=true;const hitMe=vic.some(([o])=>o===0);(hitMe&&s!==0?sfx.hurt:sfx.capture)();
       const names=[...new Set(vic.filter(([o])=>o!==0).map(([o])=>CHARACTERS[G.chars[o]].acc))];
       if(s===0){gainXP(15*vic.length,'cap');gainCoins(5*vic.length,'cap')}
       msg=s===0?'Leütötted '+names.join(' és ')+'!'
@@ -1061,7 +1082,7 @@ function checkOver(){
   G.over=true;G.phase='over';clearSave();renderSeats();
   const place=G.ranking.indexOf(0);
   if(place===0){
-    sfx.win();buzz([60,60,120]);confetti();
+    sfx.win();confetti();
     [[4.5,4.5],[10.5,5],[7.5,9.5],[4.5,10.5],[10.5,10.5]].forEach(([x,y],i)=>setTimeout(()=>{burst(x,y,['#ffd54a','#e0554a','#4dab82','#467ecf','#ffffff'],24,4.6,{star:true,size:.12});ring(x,y,'#ffffff',1.5,.5,.12)},i*160));
   }else sfx.lose();
   $('#endTitle').innerHTML=place===0?'<span>Nyertél!</span>':'A <span>'+ordinal(place)+'</span> helyen végeztél';
@@ -1091,7 +1112,7 @@ function newGame(){
   const ci=ORDER.indexOf(settings.color);
   const seats=settings.players===2?[0,2]:[0,1,2,3];
   G={colors:[0,1,2,3].map(i=>ORDER[(ci+i)%4]),seats,chars:assignChars(seats),catFull:0,level:settings.level,
-     tokens:[0,1,2,3].map(()=>[-1,-1,-1,-1]),turn:0,dice:0,sixes:0,phase:'roll',moves:[],ranking:[],lastDice:[0,0,0,0],over:false,xp:{},coins:{}};
+     tokens:[0,1,2,3].map(()=>[-1,-1,-1,-1]),turn:0,dice:0,sixes:0,phase:'roll',moves:[],ranking:[],lastDice:[0,1,2,3].map(()=>1+Math.floor(Math.random()*6)),over:false,xp:{},coins:{}};
   begin();
 }
 function loadGame(d){
@@ -1155,7 +1176,7 @@ function gainXP(n,key){
   const after=myLevel();
   for(let l=before+1;l<=after;l++){profile.pending.push(l);profile.coins+=levelCoins(l)}
   saveProfile();renderXP();pop('+'+n+' XP','');
-  if(after>before){setTimeout(()=>{sfx.levelup();buzz([40,40,80])},250);showBanner('Szintlépés! '+after+'. szint')}
+  if(after>before){setTimeout(()=>{sfx.levelup();},250);showBanner('Szintlépés! '+after+'. szint')}
 }
 function gainCoins(n,key){
   if(!G||n<=0)return;
@@ -1234,7 +1255,7 @@ function nextRewardCard(){
   }
   $('#rExtra').hidden=!title;if(title)$('#rExtra').textContent='Új címet kaptál: '+title;
   $('#rEquip').hidden=!it;
-  $('#reward').hidden=false;confetti();sfx.reward();buzz([30,50,30]);
+  $('#reward').hidden=false;confetti();sfx.reward();
 }
 $('#rEquip').addEventListener('click',()=>{
   if(rewardItem){profile.equip[rewardItem.kind]=rewardItem.id;saveProfile();applyCosmetics()}
@@ -1263,9 +1284,9 @@ function renderShop(){
       if(own){profile.equip[shopKind]=it.id;confirmBuy=null;saveProfile();applyCosmetics();sfx.tap();shopMsg('');renderShop();return}
       if(!asking){confirmBuy=key;sfx.tap();shopMsg(it.name+' '+KIND_NOUN[shopKind]+': '+it.price+' érme. Koppints újra a vásárláshoz.');renderShop();return}
       confirmBuy=null;
-      if(profile.coins<it.price){sfx.nomove();buzz(60);shopMsg('Nincs elég érméd. Még '+(it.price-profile.coins)+' érme kell.');renderShop();return}
+      if(profile.coins<it.price){sfx.nomove();shopMsg('Nincs elég érméd. Még '+(it.price-profile.coins)+' érme kell.');renderShop();return}
       profile.coins-=it.price;profile.owned.push(key);profile.equip[shopKind]=it.id;saveProfile();applyCosmetics();renderXP();
-      sfx.buy();buzz([20,30,20]);shopMsg('Megvetted: '+it.name+' '+KIND_NOUN[shopKind]+'. Már használod is.');renderShop();
+      sfx.buy();shopMsg('Megvetted: '+it.name+' '+KIND_NOUN[shopKind]+'. Már használod is.');renderShop();
     });
     wrap.appendChild(b);
   }
