@@ -31,6 +31,18 @@ Release builds are signed with the key described in `android/keystore.properties
 
 To change the app icon, edit the images in `assets/` and run `npx @capacitor/assets generate --android`.
 
+### Publishing updates
+
+From version 1.1.0, the app checks this repo's latest GitHub release when it opens or comes back to the foreground. If the release tag (for example `v1.2.0`) is newer than the installed version and has an `.apk` attached, the app offers it in an update dialog. The player taps "Frissítés", the APK downloads, and Android's installer asks to confirm.
+
+To publish an update, commit your changes, then run:
+
+```bash
+sh release.sh 1.2.0 "- Mi változott"
+```
+
+The script raises `versionCode`, builds and signs the APK, tags and pushes the release commit, and creates the GitHub release with the APK attached. It needs the GitHub CLI (`gh`), logged in with `gh auth login`.
+
 ## Opponents
 
 Each computer player is a character with a portrait, a play style and speech-bubble reactions (captures, getting captured, tokens home, rolling a 6):

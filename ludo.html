@@ -202,6 +202,11 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
 .quote{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:var(--sand);font-weight:700;font-size:14.5px;line-height:1.35}
 .quote .mini-av{width:40px;height:40px}
 .quote b{white-space:nowrap;color:#6b777d;font-size:13px}
+/* App update dialog */
+#update{z-index:8}
+.unotes{white-space:pre-line;max-height:9em;overflow:auto;padding:10px 12px;border-radius:12px;background:var(--sand);font-size:13.5px}
+.xptrack.light{background:var(--sand)}
+.xptrack.light i{transition:width .2s linear}
 @media (prefers-reduced-motion:reduce){.die.ready,.die.rolling,.reward-show::before,.avatar.hungry{animation:none}}
 </style>
 
@@ -304,6 +309,21 @@ button:focus-visible,label:focus-within{outline:3px solid var(--gold);outline-of
     <div class="items" id="items"></div>
     <p class="shop-note">Érmét ütésért, célba érésért, helyezésért és minden szintlépésért kapsz. Egyes tárgyak csak szintlépéssel nyílnak meg.</p>
     <div class="actions"><button class="btn" type="button" id="collDone">Kész</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="update" hidden>
+  <div class="card" role="dialog" aria-labelledby="uTitle">
+    <span class="kicker">Frissítés</span>
+    <h2 id="uTitle">Új verzió érhető el</h2>
+    <p id="uInfo"></p>
+    <p class="unotes" id="uNotes" hidden></p>
+    <div class="xptrack light" id="uProg" hidden><i id="uBar"></i></div>
+    <p class="shop-msg" id="uMsg" aria-live="polite"></p>
+    <div class="actions">
+      <button class="btn" type="button" id="uGo">Frissítés</button>
+      <button class="btn alt" type="button" id="uLater">Később</button>
+    </div>
   </div>
 </div>
 
@@ -1130,6 +1150,54 @@ $('#collBtn').addEventListener('click',openShop);
 $('#endShopBtn').addEventListener('click',openShop);
 $('#collDone').addEventListener('click',()=>{sfx.tap();$('#collection').hidden=true;renderXP()});
 
+/* ---------- App updates (Android app only): offers newer APKs published on GitHub Releases ---------- */
+const RELEASES_URL='https://api.github.com/repos/thepateyy/ludo-club/releases/latest';
+const Updater=window.Capacitor?.isNativePlatform?.()?window.Capacitor.registerPlugin('AppUpdater'):null;
+let updateInfo=null,lastUpdateCheck=0;
+function isNewer(a,b){
+  const pa=a.split('.').map(Number),pb=b.split('.').map(Number);
+  for(let i=0;i<Math.max(pa.length,pb.length);i++){const x=pa[i]||0,y=pb[i]||0;if(x!==y)return x>y}
+  return false;
+}
+async function checkForUpdate(){
+  if(!Updater||Date.now()-lastUpdateCheck<3*3600e3)return;
+  lastUpdateCheck=Date.now();
+  try{
+    const[{versionName},res]=await Promise.all([Updater.getVersion(),fetch(RELEASES_URL,{headers:{Accept:'application/vnd.github+json'}})]);
+    if(!res.ok)return;
+    const rel=await res.json(),latest=String(rel.tag_name||'').replace(/^v/,''),apk=(rel.assets||[]).find(a=>/\.apk$/i.test(a.name));
+    if(!apk||!/^\d+(\.\d+)*$/.test(latest)||!isNewer(latest,versionName))return;
+    updateInfo={latest,current:versionName,url:apk.browser_download_url,size:apk.size,notes:String(rel.body||'').trim()};
+    showUpdate();
+  }catch(e){}
+}
+function showUpdate(){
+  const u=updateInfo;
+  $('#uInfo').textContent='Új verzió: '+u.latest+' · Jelenlegi: '+u.current+' · '+(u.size/1048576).toFixed(1).replace('.',',')+' MB';
+  $('#uNotes').textContent=u.notes.slice(0,800);$('#uNotes').hidden=!u.notes;
+  $('#uProg').hidden=true;$('#uMsg').textContent='';
+  const go=$('#uGo');go.disabled=false;go.textContent='Frissítés';
+  $('#update').hidden=false;
+}
+$('#uLater').addEventListener('click',()=>{sfx.tap();$('#update').hidden=true});
+$('#uGo').addEventListener('click',async()=>{
+  if(!updateInfo)return;
+  unlockAudio();sfx.tap();
+  const go=$('#uGo');go.disabled=true;go.textContent='Letöltés…';
+  $('#uProg').hidden=false;$('#uBar').style.width='0%';$('#uMsg').textContent='';
+  let handle=null;
+  try{
+    handle=await Updater.addListener('downloadProgress',p=>{$('#uBar').style.width=p.percent+'%'});
+    await Updater.downloadAndInstall({url:updateInfo.url});
+    $('#uMsg').textContent='Koppints a Telepítés gombra. Ha a telefon engedélyt kér, engedélyezd a telepítést ebből az alkalmazásból.';
+    go.textContent='Telepítés újra';
+  }catch(e){
+    $('#uMsg').textContent='A letöltés nem sikerült. Ellenőrizd az internetkapcsolatot, és próbáld újra.';
+    go.textContent='Próbáld újra';
+  }finally{go.disabled=false;handle&&handle.remove()}
+});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkForUpdate()});
+
 canvas.addEventListener('pointerdown',e=>{
   unlockAudio();
   if(!G||G.phase!=='move'||cur()!==0)return;
@@ -1150,6 +1218,7 @@ function start(data){
   layout();renderSeats();requestAnimationFrame(render);
   if(data.game)loadGame(data.game);
   else{const s=readSave();if(s&&s.settings)settings=s.settings;openMenu();status('')}
+  checkForUpdate();
 }
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
 })();
